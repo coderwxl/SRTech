@@ -25,7 +25,12 @@ service.interceptors.request.use(
   },
   error => {
     // do something with request error
-    console.log(error) // for debug
+    console.log('request error: ' + error) // for debug
+    Message({
+      message: error.message,
+      type: 'warning',
+      duration: 3 * 1000
+    })
     return Promise.reject(error)
   }
 )
@@ -72,7 +77,7 @@ service.interceptors.response.use(
     }
   },
   error => {
-    console.log('err' + error) // for debug
+    console.log('response error: ' + error) // for debug
     Message({
       message: error.message,
       type: 'error',

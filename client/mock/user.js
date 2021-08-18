@@ -16,10 +16,10 @@ const users = {
     name: 'Super Admin'
   },
   'editor-token': {
-    roles: ['editor'],
-    introduction: 'I am an editor',
+    roles: ['normal'],
+    introduction: 'I am an normal user',
     avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
-    name: 'Normal Editor'
+    name: 'Normal User'
   }
 }
 

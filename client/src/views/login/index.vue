@@ -18,7 +18,7 @@
         />
       </el-form-item>
 
-      <el-form-item prop="password" :error="passErr">
+      <el-form-item prop="password">
         <el-input
           ref="password"
           key="password"
@@ -41,37 +41,30 @@
 </template>
 
 <script>
-import { validUsername } from '@/utils/validate'
+import { login } from '@/api/user'
+import { setToken } from '@/utils/auth'
+import md5 from 'md5'
 
 export default {
   name: 'Login',
   data() {
-    const validateUsername = (rule, value, callback) => {
-      if (!validUsername(value)) {
-        callback(new Error('请输入正确用户名'))
-      } else {
-        callback()
-      }
-    }
-    const validatePassword = (rule, value, callback) => {
-      if (value.length < 6) {
-        callback(new Error('密码长度不能小于6位'))
-      } else {
-        callback()
-      }
-    }
     return {
       loginForm: {
         username: '',
         password: ''
       },
       loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        password: [{ required: true, trigger: 'blur', validator: validatePassword }]
+        username: [
+          { required: true, trigger: 'blur', message: '用户名不能为空' },
+          { min: 6, message: '用户名长度不满足要求（最少6位）' }
+        ],
+        password: [
+          { required: true, trigger: 'blur', message: '密码不能为空' },
+          { min: 6, message: '密码长度不满足要求（最少6位）' }
+        ]
       },
       loading: false,
-      redirect: undefined,
-      passErr: ''
+      redirect: undefined
     }
   },
   watch: {
@@ -86,18 +79,18 @@ export default {
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
-          this.passErr = ''
-          console.log(this.passErr)
           this.loading = true
-          this.$store.dispatch('user/login', this.loginForm).then(() => {
+          login(Object.assign({}, this.loginForm, {password: md5(this.loginForm.password)})).then(response => {
+            const { data } = response
+            this.$store.commit('SET_TOKEN', data.token)
+            setToken(data.token)
             this.$router.push({ path: this.redirect || '/' })
             this.loading = false
-          }).catch(() => {
+          }, onRejected => {
             this.loading = false
-            this.passErr = 'tessttttt'
           })
         } else {
-          console.log('error submit!!')
+          console.log('validate failed!')
           return false
         }
       })

@@ -56,11 +56,11 @@ export default {
       loginRules: {
         username: [
           { required: true, trigger: 'blur', message: '用户名不能为空' },
-          { min: 6, message: '用户名长度不满足要求（最少6位）' }
+          { min: 6, trigger: 'blur', message: '用户名长度不满足要求（最少6位）' }
         ],
         password: [
           { required: true, trigger: 'blur', message: '密码不能为空' },
-          { min: 6, message: '密码长度不满足要求（最少6位）' }
+          { min: 6, trigger: 'blur', message: '密码长度不满足要求（最少6位）' }
         ]
       },
       loading: false,
@@ -80,10 +80,10 @@ export default {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
-          login(Object.assign({}, this.loginForm, {password: md5(this.loginForm.password)})).then(response => {
-            const { data } = response
-            this.$store.commit('SET_TOKEN', data.token)
-            setToken(data.token)
+          login(Object.assign({}, this.loginForm, { password: md5(this.loginForm.password) })).then(response => {
+            console.log(response.token)
+            this.$store.commit('user/SET_TOKEN', response.token)
+            setToken(response.token)
             this.$router.push({ path: this.redirect || '/' })
             this.loading = false
           }, onRejected => {

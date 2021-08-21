@@ -10,6 +10,6 @@ CREATE TABLE IF NOT EXISTS user
     role varchar(32) NOT NULL DEFAULT 'normal',
     avatar varchar(256) NULL,
     signature varchar(1024) NULL,
-    INDEX user_name_index (username(32)),
+    INDEX user_name_index (username(64)),
     PRIMARY KEY (id)
 ) AUTO_INCREMENT=10000 ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;

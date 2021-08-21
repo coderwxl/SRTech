@@ -12,7 +12,7 @@ router.post('/login', validate.checkLoginUsername, validate.checkLoginPassword, 
     token: jwt.sign(
       { userid: res.locals.userid, username: res.locals.username, role: res.locals.role }, 
       constant.SECRET, 
-      { algorithm: 'HS256', expiresIn: 5*60 })
+      { algorithm: 'HS256', expiresIn: constant.EXP })
   })
 });
 
@@ -35,11 +35,11 @@ router.get('/info', function(req, res, next) {
       console.error(err)
       return next(err);
     }
-
+    
     res.json({
       code: constant.CODE_SUCCESS,
       data: {
-        username: results[0].username,
+        name: results[0].username,
         role: results[0].role,
         avatar: results[0].avatar,
         signature: results[0].signature
@@ -47,5 +47,11 @@ router.get('/info', function(req, res, next) {
     })
   })
 });
+
+router.post('/logout', function(req, res) {
+  res.json({
+    code: constant.CODE_SUCCESS
+  })
+})
 
 module.exports = router;

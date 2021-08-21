@@ -1,6 +1,6 @@
 <template>
   <div class="login-container">
-    <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
+    <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" autocomplete="on" label-position="left">
 
       <div class="title-container">
         <h3 class="title">SR科技</h3>
@@ -13,7 +13,6 @@
           placeholder="用户名"
           type="text"
           tabindex="1"
-          auto-complete="on"
           prefix-icon="el-icon-user"
         />
       </el-form-item>
@@ -26,7 +25,7 @@
           type="password"
           placeholder="密码"
           tabindex="2"
-          auto-complete="on"
+          autocomplete="off"
           show-password
           prefix-icon="el-icon-lock"
           @keyup.enter.native="handleLogin"
@@ -34,15 +33,13 @@
       </el-form-item>
 
       <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:10px;" @click.native.prevent="handleLogin">登录</el-button>
-      <el-button type="text" style="padding: 0px; margin: 0px; float: right;">注册</el-button>
+      <el-button type="text" style="padding: 0px; margin: 0px; float: right;" @click.native.prevent="gotoRegister">注册</el-button>
 
     </el-form>
   </div>
 </template>
 
 <script>
-import { login } from '@/api/user'
-import { setToken } from '@/utils/auth'
 import md5 from 'md5'
 
 export default {
@@ -80,13 +77,12 @@ export default {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
-          login(Object.assign({}, this.loginForm, { password: md5(this.loginForm.password) })).then(response => {
-            console.log(response.token)
-            this.$store.commit('user/SET_TOKEN', response.token)
-            setToken(response.token)
+          this.$store.dispatch('user/login', Object.assign({}, this.loginForm, { password: md5(this.loginForm.password) })).then(() => {
             this.$router.push({ path: this.redirect || '/' })
             this.loading = false
-          }, onRejected => {
+          }, () => {
+            this.loading = false
+          }).catch(() => {
             this.loading = false
           })
         } else {
@@ -94,6 +90,10 @@ export default {
           return false
         }
       })
+    },
+
+    gotoRegister() {
+      this.$router.push({ path: '/register' })
     }
   }
 }

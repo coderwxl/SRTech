@@ -30,7 +30,7 @@ router.post('/register', validate.checkRegisterUsername, function(req, res, next
 });
 
 router.get('/info', function(req, res, next) {
-  mysql.query('select * from user where id = ?', [req.user.userid], function(err, results) {
+  mysql.query('select username, role, avatar, signature from user left outer join user_detail on user.id = user_detail.user_id where id = ?', [req.user.userid], function(err, results) {
     if (err) {
       console.error(err)
       return next(err);

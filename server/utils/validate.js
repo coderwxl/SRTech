@@ -47,7 +47,7 @@ exports.checkRegisterUsername = function(req, res, next) {
     } 
     if (results[0].mycount !== 0) {
       res.json({
-        code: CODE_USERNAME_REPEAT,
+        code: constant.CODE_USERNAME_REPEAT,
         message: '用户名已经存在'
       })
     }

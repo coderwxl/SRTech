@@ -5,10 +5,10 @@ USE srdb;
 CREATE TABLE IF NOT EXISTS `user` 
 (
     `id`        INT UNSIGNED    NOT NULL AUTO_INCREMENT,
-    `username`  VARCHAR(256)    NOT NULL UNIQUE,
+    `username`  VARCHAR(256)    NOT NULL,
     `password`  VARCHAR(256)    NOT NULL,
     `role`      VARCHAR(32)     NOT NULL DEFAULT 'normal',
-    `INDEX`     user_name_index (username(64)),
+    UNIQUE      user_name_index (username(64)),
     PRIMARY KEY (`id`)
 ) AUTO_INCREMENT=10000 ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -24,8 +24,6 @@ CREATE TABLE IF NOT EXISTS `user_detail`
     `email`     varchar(32)     NULL,
     PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
 
 
 #####################

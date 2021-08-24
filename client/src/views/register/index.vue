@@ -1,6 +1,6 @@
 <template>
   <div class="login-container">
-    <el-form ref="registerForm" :model="registerForm" :rules="loginRules" class="login-form" autocomplete="off" label-position="left">
+    <el-form ref="registerForm" status-icon :model="registerForm" :rules="loginRules" class="login-form" autocomplete="off" label-position="left">
 
       <div class="title-container">
         <h3 class="title">新用户注册</h3>
@@ -104,8 +104,10 @@ export default {
               this.$refs.registerForm.resetFields()
             })
           }, () => {
+            this.$refs.registerForm.clearValidate()
             this.loading = false
           }).catch(() => {
+            this.$refs.registerForm.clearValidate()
             this.loading = false
           })
         } else {

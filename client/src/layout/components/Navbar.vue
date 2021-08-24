@@ -11,19 +11,21 @@
           <i class="el-icon-caret-bottom" />
         </div>
         <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item icon="fa fa-user fa-fw"><span @click="$emit('edit-user-info')">编辑资料</span></el-dropdown-item>
           <router-link to="/">
-            <el-dropdown-item icon="fa fa-home">
+            <el-dropdown-item divided icon="fa fa-home fa-fw">
               主页
             </el-dropdown-item>
           </router-link>
           <a target="_blank" href="https://github.com/coderwxl/SR">
-            <el-dropdown-item icon="fa fa-external-link">Github</el-dropdown-item>
+            <el-dropdown-item icon="fa fa-external-link fa-fw">Github</el-dropdown-item>
           </a>
-          <el-dropdown-item icon="fa fa-sign-out" divided @click.native="logout">退出</el-dropdown-item>
+          <el-dropdown-item icon="fa fa-sign-out fa-fw" divided @click.native="logout">退出</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
   </div>
+
 </template>
 
 <script>
@@ -32,6 +34,11 @@ import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
 
 export default {
+  data() {
+    return {
+      dialogVisible: false
+    }
+  },
   components: {
     Breadcrumb,
     Hamburger
@@ -49,6 +56,9 @@ export default {
     async logout() {
       await this.$store.dispatch('user/logout')
       this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+    },
+    clickAvatar() {
+      alert('test')
     }
   }
 }
@@ -108,6 +118,7 @@ export default {
 
     .avatar-container {
       margin-right: 30px;
+      // border: none;
 
       .avatar-wrapper {
         margin-top: 5px;

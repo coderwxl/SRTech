@@ -2,22 +2,12 @@
   <div :class="classObj" class="app-wrapper">
     <div v-if="device==='mobile'&&sidebar.opened" class="drawer-bg" @click="handleClickOutside" />
     <sidebar class="sidebar-container" />
-    <div class="main-container" >
+    <div class="main-container">
       <div :class="{'fixed-header':fixedHeader}">
-        <navbar v-on:edit-user-info="dialogVisible = true" />
+        <navbar @edit-user-info="dialogVisible = true" />
       </div>
       <app-main /> 
-      <el-dialog
-        title="提示"
-        :visible.sync="dialogVisible"
-        width="30%"
-        :before-close="handleClose">
-        <span>这是一段信息</span>
-        <span slot="footer" class="dialog-footer">
-          <el-button @click="dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
-        </span>
-      </el-dialog>
+      <user-info-dialog :user-info-dialog-visible.sync="dialogVisible" />
     </div>
   </div>
 </template>
@@ -25,20 +15,22 @@
 <script>
 import { Navbar, Sidebar, AppMain } from './components'
 import ResizeMixin from './mixin/ResizeHandler'
+import UserInfoDialog from './dialog/UserInfoDialog.vue'
 
 export default {
   name: 'Layout',
+  components: {
+    Navbar,
+    Sidebar,
+    AppMain,
+    UserInfoDialog
+  },
+  mixins: [ResizeMixin],
   data() {
     return {
       dialogVisible: false
     }
   },
-  components: {
-    Navbar,
-    Sidebar,
-    AppMain
-  },
-  mixins: [ResizeMixin],
   computed: {
     sidebar() {
       return this.$store.state.app.sidebar
@@ -61,13 +53,6 @@ export default {
   methods: {
     handleClickOutside() {
       this.$store.dispatch('app/closeSideBar', { withoutAnimation: false })
-    },
-    handleClose(done) {
-      this.$confirm('确认关闭？')
-        .then(_ => {
-          done()
-        })
-        .catch(_ => {})
     }
   }
 }

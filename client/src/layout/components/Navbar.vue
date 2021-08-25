@@ -25,7 +25,6 @@
       </el-dropdown>
     </div>
   </div>
-
 </template>
 
 <script>
@@ -34,11 +33,6 @@ import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
 
 export default {
-  data() {
-    return {
-      dialogVisible: false
-    }
-  },
   components: {
     Breadcrumb,
     Hamburger

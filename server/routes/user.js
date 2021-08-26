@@ -4,6 +4,7 @@ var validate = require('../utils/validate')
 var jwt = require('jsonwebtoken')
 var constant = require('../utils/constant')
 var upload = require('../utils/upload')
+var path = require('path');
 
 var router = express.Router();
 module.exports = router;
@@ -72,11 +73,12 @@ router.post('/avatar', upload.any(), function(req, res){
   if (req.files.length === 0) {
     res.status(400).send('no file')
   } else {
-    mysqlquery('update user_detail set avatar=? where user_id=?', [req.files[0].path, req.user.userid]).then(results => {
+    let avatarPath = path.join('/', req.user.userid.toString(), req.files[0].filename)
+    mysqlquery('update user_detail set avatar=? where user_id=?', [avatarPath, req.user.userid]).then(results => {
       res.json({
         code: constant.CODE_SUCCESS,
         data: {
-          avatar: req.files[0].filename,
+          avatar: avatarPath
         }
       })
     }).catch(err => {

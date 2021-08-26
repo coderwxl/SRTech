@@ -14,9 +14,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'userdata')));
 
 // token吊销暂时先放到前台做 isRevoked: usersRouter.removeToken 
-app.use(expressJwt({ secret: constant.SECRET, algorithms: ['HS256'] }).unless({path: ['/user/register', '/user/login']}));
+app.use(expressJwt({ secret: constant.SECRET, algorithms: ['HS256'] }).unless({path: ['/user/register', '/user/login'], ext: ['.html', '.htm', '.css', '.js', '.jpg', '.png', '.ico']}));
 
-app.use(logger('dev', { immediate: true }));
+app.use(logger('dev')); //, { immediate: true }
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());

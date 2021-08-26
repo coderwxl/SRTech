@@ -7,9 +7,10 @@
         :show-file-list="false"
         :headers="authHeader"
         :on-success="handleAvatarSuccess"
-        :before-upload="beforeAvatarUpload">
+        :before-upload="beforeAvatarUpload"
+      >
         <img v-if="avatarUrl" :src="avatarUrl" class="avatar">
-        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+        <i v-else class="el-icon-plus avatar-uploader-icon" />
       </el-upload>
     </div>
     <div class="body-right">
@@ -21,7 +22,7 @@
           </div>
         </el-form-item>
         <el-form-item>
-          <i class="fa fa-user-o fa-fw"></i>
+          <i class="fa fa-user-o fa-fw" />
           <el-input 
             v-model="userInfo.username" 
             placeholder="用户名"
@@ -29,7 +30,7 @@
           />
         </el-form-item>
         <el-form-item>
-          <i class="fa fa-tags fa-fw"></i>
+          <i class="fa fa-tags fa-fw" />
           <el-input 
             v-model="userInfo.signature" 
             placeholder="个性签名"
@@ -37,24 +38,24 @@
           />
         </el-form-item>
         <el-form-item>
-          <i class="fa fa-birthday-cake fa-fw"></i>
+          <i class="fa fa-birthday-cake fa-fw" />
           <el-date-picker 
+            v-model="userInfo.birthday"
             type="date" 
             placeholder="出生日期" 
-            v-model="userInfo.birthday"
             tabindex="3"
             prefix-icon=""
           />
         </el-form-item>
         <el-form-item>
-          <i class="fa fa-briefcase fa-fw"></i>
+          <i class="fa fa-briefcase fa-fw" />
           <el-select v-model="userInfo.job" placeholder="职业" tabindex="4">
-            <el-option value="工人"></el-option>
-            <el-option value="农民"></el-option>
+            <el-option value="工人" />
+            <el-option value="农民" />
           </el-select>
         </el-form-item>
         <el-form-item>
-          <i class="fa fa-map-marker fa-lg fa-fw"></i>
+          <i class="fa fa-map-marker fa-lg fa-fw" />
           <el-input 
             v-model="userInfo.address" 
             placeholder="现居住地"
@@ -62,7 +63,7 @@
           />
         </el-form-item>
         <el-form-item>
-          <i class="fa fa-mobile fa-lg fa-fw"></i>
+          <i class="fa fa-mobile fa-lg fa-fw" />
           <el-input 
             v-model="userInfo.phone" 
             placeholder="电话"
@@ -70,7 +71,7 @@
           />
         </el-form-item>
         <el-form-item>
-          <i class="fa fa-envelope-o fa-fw"></i>
+          <i class="fa fa-envelope-o fa-fw" />
           <el-input 
             v-model="userInfo.email" 
             placeholder="邮箱"
@@ -90,6 +91,19 @@ export default {
   props: {
     userInfoDialogVisible: Boolean
   },
+  data() {
+    return {
+      userInfo: {
+        username: '',
+        signature: '',
+        birth_date: '',
+        job: '',
+        address: '',
+        phone: '',
+        email: ''
+      }
+    }
+  },
   computed: {
     dialogVisible: {
       get: function() {
@@ -106,19 +120,6 @@ export default {
       return this.$store.state.user.avatar
     }
   },
-  data() {
-    return {
-      userInfo: {
-        username: '',
-        signature: '',
-        birth_date: '',
-        job: '',
-        address: '',
-        phone: '',
-        email: ''
-      }
-    }
-  },
   methods: {
     handleAvatarSuccess(res, file) {
       this.$store.commit('user/SET_AVATAR', res.data.avatar)
@@ -126,16 +127,16 @@ export default {
       console.log(file)
     },
     beforeAvatarUpload(file) {
-      const isJPG = file.type === 'image/jpeg';
-      const isLt2M = file.size / 1024 / 1024 < 2;
+      const isJPG = file.type === 'image/jpeg'
+      const isLt2M = file.size / 1024 / 1024 < 2
 
       if (!isJPG) {
-        this.$message.error('上传头像图片只能是 JPG 格式!');
+        this.$message.error('上传头像图片只能是 JPG 格式!')
       }
       if (!isLt2M) {
-        this.$message.error('上传头像图片大小不能超过 2MB!');
+        this.$message.error('上传头像图片大小不能超过 2MB!')
       }
-      return isJPG && isLt2M;
+      return isJPG && isLt2M
     }
   }
 }

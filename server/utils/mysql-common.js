@@ -1,4 +1,5 @@
 var mysql = require('mysql')
+
 var pool = mysql.createPool({
   connectionLimit: 10,
   host: 'localhost',
@@ -7,4 +8,16 @@ var pool = mysql.createPool({
   database: 'srdb'
 })
 
-module.exports = pool
+var query = function (sql, values) {
+  return new Promise((resolve, reject) => {
+    pool.query(sql, values, (err, rows) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(rows)
+      }
+    })
+  })
+}
+
+module.exports = query

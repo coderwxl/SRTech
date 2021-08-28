@@ -13,6 +13,7 @@
         <i v-else class="el-icon-plus avatar-uploader-icon" />
       </el-upload>
     </div>
+    <el-divider direction="vertical"></el-divider>
     <div class="body-right">
       <el-form ref="userInfo" :model="userInfo">
         <el-form-item class="edit-button-item">
@@ -166,6 +167,7 @@ $avatar_size:150px;
   .mydialog ::v-deep {
     .el-dialog {
       max-width: 700px;
+      min-width: 550px;
     }
     .el-dialog__header {
       padding-top: 0px;
@@ -174,7 +176,7 @@ $avatar_size:150px;
 
 .body-left {
   display: inline-block;
-  width: 35%;
+  width: 30%;
 
   .avatar-uploader {
     border: 1px dashed #d9d9d9;
@@ -239,5 +241,11 @@ $avatar_size:150px;
   .first-item {
     margin-top: 0px;
   }
+}
+
+.el-divider {
+  height: 300px;
+  vertical-align: baseline;
+  // top: 20px;
 }
 </style>

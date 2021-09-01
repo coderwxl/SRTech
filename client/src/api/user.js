@@ -23,6 +23,13 @@ export function getInfo() {
   })
 }
 
+export function editInfo(data) {
+  return request({
+    url: '/user/info',
+    method: 'post',
+    data
+  })
+}
 export function logout() {
   return request({
     url: '/user/logout',

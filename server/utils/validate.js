@@ -54,12 +54,14 @@ exports.checkRegisterUsername = function(req, res, next) {
 
 exports.checkEditInfoUsername = function(req, res, next) {
   mysqlquery('select count(*) as mycount from user where username = ? and id != ?', [req.body.username, req.user.userid]).then(results => {
-    res.json({
-      code: constant.CODE_USERNAME_REPEAT,
-      message: '用户名已经存在'
-    })
+    if (results[0].mycount !== 0) {
+      res.json({
+        code: constant.CODE_USERNAME_REPEAT,
+        message: '用户名已经存在'
+      })
+    }
   
-  next();
+    next();
   }).catch(err => {
     console.error(error);
     return next(error);      

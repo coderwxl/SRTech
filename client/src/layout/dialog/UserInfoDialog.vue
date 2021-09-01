@@ -1,5 +1,5 @@
 <template>
-  <el-dialog class="mydialog" :visible.sync="dialogVisible" :modal="false">
+  <el-dialog class="mydialog" :visible.sync="dialogVisible" :modal="false" @open="handleDialogOpen">
     <div class="body-left">
       <el-upload
         class="avatar-uploader"
@@ -18,7 +18,7 @@
       <el-form ref="userInfo" :model="userInfo">
         <el-form-item class="edit-button-item">
           <div class="edit-button">
-            <el-button type="text" v-show="isEdit" @click="isEdit = false">取消</el-button>
+            <el-button type="text" v-show="isEdit" @click="handleCancel">取消</el-button>
             <el-button type="text" @click="handleEdit">{{ isEdit ? "保存" : "编辑" }}</el-button>
           </div>
         </el-form-item>
@@ -46,17 +46,25 @@
           <i class="fa fa-birthday-cake fa-fw" />
           <el-date-picker 
             v-if="isEdit"
-            v-model="userInfo.birthday"
+            v-model="userInfo.birth_date"
             type="date" 
             placeholder="出生日期" 
             tabindex="3"
-            prefix-icon=""
+            prefix-icon=""  
+            format="yyyy-MM-dd"
+            value-format="yyyy-MM-dd"
           />
-          <span v-else :class="{'info-label': true, 'info-label-placeholder': !userInfo.birthday}">{{ userInfo.birthday ? userInfo.birthday : '出生日期' }}</span>
+          <span v-else :class="{'info-label': true, 'info-label-placeholder': !userInfo.birth_date}">{{ userInfo.birth_date ? userInfo.birth_date : '出生日期' }}</span>
         </el-form-item>
         <el-form-item>
           <i class="fa fa-briefcase fa-fw" />
-          <el-select v-if="isEdit" v-model="userInfo.job" placeholder="职业" tabindex="4">
+          <el-select 
+            v-if="isEdit" 
+            v-model="userInfo.job" 
+            filterable
+            allow-create
+            placeholder="职业" 
+            tabindex="4">
             <el-option value="工人" />
             <el-option value="农民" />
           </el-select>
@@ -99,12 +107,15 @@
 
 <script>
 import { getToken } from '@/utils/auth'
+import { getInfo, editInfo } from '@/api/user'
+// import PublicMixin from '@/utils/public-mixin'
 
 export default {
   name: 'UserInfoDialog',
   props: {
     userInfoDialogVisible: Boolean
   },
+  // mixins: [PublicMixin],
   data() {
     return {
       userInfo: {
@@ -138,8 +149,6 @@ export default {
   methods: {
     handleAvatarSuccess(res, file) {
       this.$store.commit('user/SET_AVATAR', res.data.avatar)
-      console.log(res)
-      console.log(file)
     },
     beforeAvatarUpload(file) {
       const isJPG = file.type === 'image/jpeg'
@@ -153,8 +162,26 @@ export default {
       }
       return isJPG && isLt2M
     },
+    handleDialogOpen() {
+      getInfo().then(response => {
+        const { data } = response
+        Object.assign(this.userInfo, data)
+      })
+    },
     handleEdit() {
-      this.isEdit = !this.isEdit
+      if (!this.isEdit) {
+        this.isEdit = true
+        return
+      } else {
+        editInfo(this.userInfo).then(() => {
+          this.isEdit = false
+          this.handleDialogOpen()
+        })
+      }
+    },
+    handleCancel() {
+      this.isEdit = false
+      this.handleDialogOpen()
     }
   }
 }
@@ -229,6 +256,7 @@ $avatar_size:150px;
 
     .info-label {
       padding-left: 8px;
+      font-size: 1.1em;
     }
     .info-label-placeholder {
       color:#C0C4CC;

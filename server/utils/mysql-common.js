@@ -5,7 +5,8 @@ var pool = mysql.createPool({
   host: 'localhost',
   user: 'root',
   password: '123123',
-  database: 'srdb'
+  database: 'srdb',
+  dateStrings: true
 })
 
 var query = function (sql, values) {

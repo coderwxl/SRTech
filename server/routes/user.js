@@ -57,8 +57,9 @@ async function createNewUserDetail(req, res, next) {
     let rows = await mysqlquery('select count(*) as mycount from user_detail where user_id=?', [req.user.userid]);
     if (rows[0].mycount === 0) {
       await mysqlquery('insert into user_detail(user_id) values(?)', [req.user.userid]);
-      next();
     }
+
+    next();
   } catch (err) {
     console.error(err);
     return next(err);
@@ -70,6 +71,9 @@ router.post('/info', validate.checkEditInfoUsername, createNewUserDetail, async 
     await mysqlquery('update user set username=? where id=?', [req.body.username, req.user.userid]);
     await mysqlquery('update user_detail set signature=?, birth_date=?, job=?, address=?, phone=?, email=? where user_id=?', 
       [req.body.signature, req.body.birth_date, req.body.job, req.body.address, req.body.phone, req.body.email, req.user.userid]);
+    res.json({
+      code: constant.CODE_SUCCESS
+    })
   } catch (err) {
     console.error(err)
     return next(err);

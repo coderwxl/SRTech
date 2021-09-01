@@ -8,6 +8,8 @@ import 'element-ui/lib/theme-chalk/index.css'
 
 import 'font-awesome/css/font-awesome.min.css' // font-awesome
 
+// import dayjs from 'dayjs'
+
 import '@/styles/index.scss' // global css
 
 import App from './App'
@@ -36,6 +38,10 @@ import '@/permission' // permission control
 Vue.use(ElementUI)
 
 Vue.config.productionTip = false
+
+// Vue.filter('DateTimeFormat', function(datetime, format) {
+//   return dayjs(datetime).format(format)
+// })
 
 new Vue({
   el: '#app',

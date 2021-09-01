@@ -1,5 +1,5 @@
 <template>
-  <el-dialog class="mydialog" :visible.sync="dialogVisible" :modal="false" @open="handleDialogOpen">
+  <el-dialog class="mydialog" :visible.sync="dialogVisible" @open="handleDialogOpen">
     <div class="body-left">
       <el-upload
         class="avatar-uploader"

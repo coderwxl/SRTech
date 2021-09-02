@@ -1,5 +1,5 @@
 <template>
-  <el-dialog class="mydialog" :visible.sync="dialogVisible" @open="handleDialogOpen">
+  <el-dialog class="mydialog" :visible.sync="dialogVisible" @open="handleDialogOpen" :modal="false">
     <div class="body-left">
       <el-upload
         class="avatar-uploader"
@@ -130,6 +130,13 @@ export default {
       isEdit: false
     }
   },
+  created: function() {
+    document.onkeydown = e => {
+      if (this.dialogVisible && e.key === 'Escape') {
+        this.dialogVisible = false
+      }
+    }
+  },
   computed: {
     dialogVisible: {
       get: function() {
@@ -163,6 +170,7 @@ export default {
       return isJPG && isLt2M
     },
     handleDialogOpen() {
+      this.isEdit = false
       getInfo().then(response => {
         const { data } = response
         Object.assign(this.userInfo, data)

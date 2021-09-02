@@ -32,9 +32,10 @@ export default {
 
 <style lang="scss">
 // fix css style bug in open el-dialog
-.el-popup-parent--hidden {
-  .fixed-header {
-    padding-right: 15px;
-  }
-}
+// el-dialog模态对话框时页面右边有留白，暂时注掉
+// .el-popup-parent--hidden {
+//   .fixed-header {
+//     padding-right: 15px;
+//   }
+// }
 </style>

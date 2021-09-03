@@ -157,17 +157,17 @@ export default {
     handleAvatarSuccess(res, file) {
       this.$store.commit('user/SET_AVATAR', res.data.avatar)
     },
-    beforeAvatarUpload(file) {
-      const isJPG = file.type === 'image/jpeg'
+    async beforeAvatarUpload(file) {
       const isLt2M = file.size / 1024 / 1024 < 2
 
-      if (!isJPG) {
-        this.$message.error('上传头像图片只能是 JPG 格式!')
-      }
       if (!isLt2M) {
         this.$message.error('上传头像图片大小不能超过 2MB!')
+        return false
       }
-      return isJPG && isLt2M
+
+      await this.$confirm('确定上传图像？', '确认信息', {
+        iconClass: 'fa fa-question-circle'
+      })
     },
     handleDialogOpen() {
       this.isEdit = false

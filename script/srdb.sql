@@ -5,10 +5,9 @@ USE srdb;
 CREATE TABLE IF NOT EXISTS `user` 
 (
     `id`        INT UNSIGNED    NOT NULL AUTO_INCREMENT,
-    `username`  VARCHAR(256)    NOT NULL,
+    `username`  VARCHAR(32)     NOT NULL UNIQUE,
     `password`  VARCHAR(256)    NOT NULL,
     `role`      VARCHAR(32)     NOT NULL DEFAULT 'normal',
-    UNIQUE      user_name_index (username(64)),
     PRIMARY KEY (`id`)
 ) AUTO_INCREMENT=10000 ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -16,7 +15,7 @@ CREATE TABLE IF NOT EXISTS `user_detail`
 (
     `user_id`   INT UNSIGNED    NOT NULL,
     `avatar`    VARCHAR(256)    NULL,
-    `signature` VARCHAR(1024)   NULL,
+    `signature` VARCHAR(256)    NULL,
     `birth_date`DATE            NULL,
     `job`       VARCHAR(32)     NULL,
     `address`   VARCHAR(256)    NULL,
@@ -25,8 +24,92 @@ CREATE TABLE IF NOT EXISTS `user_detail`
     PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `friend`
+(
+    `user_id`   INT UNSIGNED    NOT NULL,
+    `add_time`  DATETIME        NOT NULL,
+    `remark`    VARCHAR(32),
+    `is_blacklist` TINYINT(1)   DEFAULT 0,
+    `source_id` INT UNSIGNED    COMMENT '来源（预留）'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+#朋友来源表（预留）
+CREATE TABLE IF NOT EXISTS `source`
+(
+    `id`        INT UNSIGNED    NOT NULL AUTO_INCREMENT,
+    `description`   VARCHAR(64) NOT NULL UNIQUE,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `group`
+(
+    `id`        INT UNSIGNED    NOT NULL AUTO_INCREMENT,
+    `name`      VARCHAR(32)     NOT NULL,
+    `create_time`   DATETIME    NOT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `group_detail`
+(
+    `group_id`  INT UNSIGNED    NOT NULL,
+    `user_id`   INT UNSIGNED    NOT NULL,
+    `nickname`  VARCHAR(32)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `user_chat`
+(
+    `user_id`   INT UNSIGNED    NOT NULL,
+    `chat_id`   INT UNSIGNED    NOT NULL,
+    `is_visible`TINYINT(1)      DEFAULT 1,
+    `update_time`   DATETIME    NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `chat`
+(
+    `id`        INT UNSIGNED    NOT NULL AUTO_INCREMENT,
+    `type`      TINYINT(1)      NOT NULL COMMENT '1:用户 2:群',
+    `group_id`  INT UNSIGNED,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `message`
+(
+    `id`        BIGINT UNSIGNED    NOT NULL AUTO_INCREMENT,
+    `chat_id`   INT UNSIGNED    NOT NULL,
+    `user_id`   INT UNSIGNED    NOT NULL,
+    `data`      TEXT            NOT NULL,
+    `time`      DATETIME        NOT NULL,
+    `is_undo`   TINYINT(1)      DEFAULT 0,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+#用户删除的聊天记录
+CREATE TABLE IF NOT EXISTS `user_del_message`
+(
+    `user_id`   INT UNSIGNED    NOT NULL,
+    `message_id`BIGINT UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
 
 #####################
 # Define foreign keys
 #####################
-ALTER TABLE user_detail ADD CONSTRAINT fk_user_detail_user_id FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `user_detail` ADD CONSTRAINT `fk_user_detail_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `friend` ADD CONSTRAINT `fk_friend_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `friend` ADD CONSTRAINT `fk_friend_source_id` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE `group_detail` ADD CONSTRAINT `fk_group_detail_group_id` FOREIGN KEY (`group_id`) REFERENCES `group` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `group_detail` ADD CONSTRAINT `fk_group_detail_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `user_chat` ADD CONSTRAINT `fk_user_chat_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `user_chat` ADD CONSTRAINT `fk_user_chat_chat_id` FOREIGN KEY (`chat_id`) REFERENCES `chat` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `chat` ADD CONSTRAINT `fk_chat_group_id` FOREIGN KEY (`group_id`) REFERENCES `group` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `message` ADD CONSTRAINT `fk_message_chat_id` FOREIGN KEY (`chat_id`) REFERENCES `chat` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `message` ADD CONSTRAINT `fk_message_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `user_del_message` ADD CONSTRAINT `fk_user_del_message_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `user_del_message` ADD CONSTRAINT `fk_user_del_message_message_id` FOREIGN KEY (`message_id`) REFERENCES `message` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;

@@ -7,6 +7,7 @@ var expressJwt = require('express-jwt')
 
 var constant = require('./utils/constant')
 var usersRouter = require('./routes/user');
+var chatRouter = require('./routes/friend');
 
 var app = express();
 
@@ -22,6 +23,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use('/user', usersRouter);
+app.use('/friend', chatRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

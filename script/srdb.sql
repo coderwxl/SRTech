@@ -27,16 +27,26 @@ CREATE TABLE IF NOT EXISTS `user_detail`
 CREATE TABLE IF NOT EXISTS `friend`
 (
     `user_id`   INT UNSIGNED    NOT NULL,
-    `add_time`  DATETIME        NOT NULL,
+    `friend_id` INT UNSIGNED    NOT NULL,
+    `add_time`  DATETIME        NOT NULL DEFAULT NOW(),
+    `status_id` INT UNSIGNED    NOT NULL,
     `remark`    VARCHAR(32),
     `is_blacklist` TINYINT(1)   DEFAULT 0,
     `source_id` INT UNSIGNED    COMMENT '来源（预留）'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+#朋友状态（用于添加朋友）
+CREATE TABLE IF NOT EXISTS `status`
+(
+    `id`        INT UNSIGNED    NOT NULL,
+    `description`   VARCHAR(64) NOT NULL UNIQUE,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 #朋友来源表（预留）
 CREATE TABLE IF NOT EXISTS `source`
 (
-    `id`        INT UNSIGNED    NOT NULL AUTO_INCREMENT,
+    `id`        INT UNSIGNED    NOT NULL,
     `description`   VARCHAR(64) NOT NULL UNIQUE,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -92,12 +102,15 @@ CREATE TABLE IF NOT EXISTS `user_del_message`
 
 
 
+
+
 #####################
 # Define foreign keys
 #####################
 ALTER TABLE `user_detail` ADD CONSTRAINT `fk_user_detail_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `friend` ADD CONSTRAINT `fk_friend_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `friend` ADD CONSTRAINT `fk_friend_friend_id` FOREIGN KEY (`friend_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `friend` ADD CONSTRAINT `fk_friend_source_id` FOREIGN KEY (`source_id`) REFERENCES `source` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 ALTER TABLE `group_detail` ADD CONSTRAINT `fk_group_detail_group_id` FOREIGN KEY (`group_id`) REFERENCES `group` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;

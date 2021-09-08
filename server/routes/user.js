@@ -1,5 +1,5 @@
 var express = require('express');
-var mysqlquery = require('../utils/mysql-common')
+var mysql = require('../utils/mysql-common')
 var validate = require('../utils/validate')
 var jwt = require('jsonwebtoken')
 var constant = require('../utils/constant')
@@ -20,7 +20,7 @@ router.post('/login', validate.checkLoginUsername, validate.checkLoginPassword, 
 });
 
 router.post('/register', validate.checkRegisterUsername, function(req, res, next) {
-  mysqlquery('insert into user(username, password) values(?, ?)', [req.body.username, req.body.password.toLowerCase()]).then(() => {
+  mysql.query('insert into user(username, password) values(?, ?)', [req.body.username, req.body.password.toLowerCase()]).then(() => {
     res.json({ 
       code: constant.CODE_SUCCESS
     })
@@ -31,7 +31,7 @@ router.post('/register', validate.checkRegisterUsername, function(req, res, next
 });
 
 router.get('/info', function(req, res, next) {
-  mysqlquery('select username, role, avatar, signature, birth_date, job, address, phone, email from user left outer join user_detail on user.id = user_detail.user_id where id = ?', [req.user.userid]).then((results) => {
+  mysql.query('select username, role, avatar, signature, birth_date, job, address, phone, email from user left outer join user_detail on user.id = user_detail.user_id where id = ?', [req.user.userid]).then((results) => {
     res.json({
       code: constant.CODE_SUCCESS,
       data: {
@@ -54,9 +54,9 @@ router.get('/info', function(req, res, next) {
 
 async function createNewUserDetail(req, res, next) {
   try {
-    let rows = await mysqlquery('select count(*) as mycount from user_detail where user_id=?', [req.user.userid]);
+    let rows = await mysql.query('select count(*) as mycount from user_detail where user_id=?', [req.user.userid]);
     if (rows[0].mycount === 0) {
-      await mysqlquery('insert into user_detail(user_id) values(?)', [req.user.userid]);
+      await mysql.query('insert into user_detail(user_id) values(?)', [req.user.userid]);
     }
 
     next();
@@ -68,8 +68,8 @@ async function createNewUserDetail(req, res, next) {
 
 router.post('/info', validate.checkEditInfoUsername, createNewUserDetail, async function(req, res, next) {
   try {
-    await mysqlquery('update user set username=? where id=?', [req.body.username, req.user.userid]);
-    await mysqlquery('update user_detail set signature=?, birth_date=?, job=?, address=?, phone=?, email=? where user_id=?', 
+    await mysql.query('update user set username=? where id=?', [req.body.username, req.user.userid]);
+    await mysql.query('update user_detail set signature=?, birth_date=?, job=?, address=?, phone=?, email=? where user_id=?', 
       [req.body.signature, req.body.birth_date, req.body.job, req.body.address, req.body.phone, req.body.email, req.user.userid]);
     res.json({
       code: constant.CODE_SUCCESS
@@ -91,7 +91,7 @@ router.post('/avatar', upload.any(), createNewUserDetail, function(req, res, nex
     res.status(400).send('no file')
   } else {
     let avatarPath = path.join('/', req.user.userid.toString(), req.files[0].filename)
-    mysqlquery('update user_detail set avatar=? where user_id=?', [avatarPath, req.user.userid]).then(results => {
+    mysql.query('update user_detail set avatar=? where user_id=?', [avatarPath, req.user.userid]).then(results => {
       res.json({
         code: constant.CODE_SUCCESS,
         data: {

@@ -1,8 +1,8 @@
-var mysqlquery = require('./mysql-common')
+var mysql = require('./mysql-common')
 var constant = require('./constant')
 
 exports.checkLoginUsername = function(req, res, next) {
-  mysqlquery('select count(*) as mycount from user where username = ?', [req.body.username]).then((results) => {
+  mysql.query('select count(*) as mycount from user where username = ?', [req.body.username]).then((results) => {
     if (results[0].mycount === 0) {
       return res.json({
         code: constant.CODE_NO_USER,
@@ -17,7 +17,7 @@ exports.checkLoginUsername = function(req, res, next) {
 }
 
 exports.checkLoginPassword = function(req, res, next) {
-  mysqlquery('select * from user where username = ? and password = ?', [req.body.username, req.body.password.toLowerCase()]).then(results => {
+  mysql.query('select * from user where username = ? and password = ?', [req.body.username, req.body.password.toLowerCase()]).then(results => {
     if (results.length === 0) {
       return res.json({
         code: constant.CODE_PASSWORD_ERROR,
@@ -37,7 +37,7 @@ exports.checkLoginPassword = function(req, res, next) {
 }
 
 exports.checkRegisterUsername = function(req, res, next) {
-  mysqlquery('select count(*) as mycount from user where username = ?', [req.body.username]).then(results => {
+  mysql.query('select count(*) as mycount from user where username = ?', [req.body.username]).then(results => {
     if (results[0].mycount !== 0) {
       res.json({
         code: constant.CODE_USERNAME_REPEAT,
@@ -53,7 +53,7 @@ exports.checkRegisterUsername = function(req, res, next) {
 }
 
 exports.checkEditInfoUsername = function(req, res, next) {
-  mysqlquery('select count(*) as mycount from user where username = ? and id != ?', [req.body.username, req.user.userid]).then(results => {
+  mysql.query('select count(*) as mycount from user where username = ? and id != ?', [req.body.username, req.user.userid]).then(results => {
     if (results[0].mycount !== 0) {
       res.json({
         code: constant.CODE_USERNAME_REPEAT,
@@ -66,4 +66,31 @@ exports.checkEditInfoUsername = function(req, res, next) {
     console.error(error);
     return next(error);      
   })
+}
+
+
+exports.checkAddFriendName = async function(req, res, next) {
+  try {
+    let rows = await mysql.query('select * from user where username = ?', [req.body.friendName]);
+    if (0 === rows.length) {
+      return res.json({
+        code: constant.CODE_NO_USER,
+        message: '用户名不存在'
+      })
+    } else {
+      res.locals.friendID = rows[0].id;
+      rows = await mysql.query('select * from friend where user_id = ? and friend_id = ?', [req.user.userid, res.locals.friendID]);
+      if (0 !== rows.length) {
+        return res.json({
+          code: constant.CODE_FRIEND_ALREADY_EXIST,
+          message: '该用户已经添加'
+        })
+      }
+    }
+
+    next();
+  } catch (err) {
+    console.error(error);
+    return next(error);      
+  }
 }

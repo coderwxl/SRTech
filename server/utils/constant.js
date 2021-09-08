@@ -11,3 +11,6 @@ exports.CODE_USERNAME_REPEAT = 1001
 
 // token
 exports.INVALID_TOKEN = 2000
+
+// friend
+exports.CODE_FRIEND_ALREADY_EXIST = 3000 //朋友已经添加

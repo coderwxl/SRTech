@@ -60,6 +60,28 @@ export const constantRoutes = [
   },
 
   {
+    path: '/chat',
+    component: Layout,
+    redirect: '/chat/friend',
+    name: 'chat',
+    meta: { title: '聊天', icon: 'el-icon-chat-dot-round' },
+    children: [
+      {
+        path: 'chat',
+        name: 'Chat',
+        component: () => import('@/views/chat/chat/index'),
+        meta: { title: '消息', icon: 'el-icon-chat-line-round' }
+      },
+      {
+        path: 'friend',
+        name: 'Friend',
+        component: () => import('@/views/chat/friend/index'),
+        meta: { title: '好友', icon: 'el-icon-user' }
+      }
+    ]
+  },
+
+  {
     path: '/example',
     component: Layout,
     redirect: '/example/table',

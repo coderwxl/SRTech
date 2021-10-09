@@ -1,45 +1,41 @@
 <template>
-  <div class="app-container">
-    <el-scrollbar class="left"></el-scrollbar>
-    <div class="right">
-      <el-scrollbar class="right-top"></el-scrollbar>
-      <el-scrollbar style="right-bottom"></el-scrollbar>
-    </div>
+  <div class="components-container">
+    <split-pane split="vertical" default-percent="25" min-percent="20">
+      <template slot="paneL">
+        <div class="left-container" />
+      </template>
+      <template slot="paneR">
+        <div class="right-container" />
+      </template>
+    </split-pane>
   </div>
 </template>
 
 <script>
-import { getList } from '@/api/table'
+import splitPane from 'vue-splitpane'
 
 export default {
-  data() {
-    return {
-
-    }
-  },
-  created() {
-    this.fetchData()
-  },
+  name: 'SplitpaneDemo',
+  components: { splitPane },
   methods: {
-    fetchData() {
-    }
+
   }
 }
 </script>
 
-<style lang="scss" scoped>
-.left {
-  width: 200px;
-  height: 100%;
-  overflow-x: hidrongan
-.right {
-  width: calc(100% - 200px);
-  height: 100%;
+<style  scoped>
+  .components-container {
+    position: relative;
+    height: calc(100vh - 50px);
+  }
 
-  .right-top {
-    width: 100px;
+  .left-container {
+    background-color: #F38181;
     height: 100%;
   }
-  
-}
+
+  .right-container {
+    background-color: #FCE38A;
+    height: 100%;
+  }
 </style>

@@ -7,9 +7,10 @@ var router = module.exports = express.Router();
 
 //获取朋友列表
 router.get('/', function(req, res, next) { 
-  mysql.query('select user.id, user.username, user_detail.avatar from user, user_detail, friend \
+  mysql.query('select user.id, user.username, user_detail.avatar, user_detail.signature from user, user_detail, friend \
               where user.id = user_detail.user_id and user.id=friend.friend_id and friend.user_id = ? and friend.is_blacklist = 0 order by user.username', 
               [req.user.userid]).then((results) => {
+    console.log(results);
     res.json({
       code: constant.CODE_SUCCESS,
       data: results

@@ -1,7 +1,7 @@
 <template>
   <div class="components-container">
     <div class="left-container column">
-      <friend-item v-for="friend in friends" :image-url="friend.avatar" :name="friend.username" :signature="friend.signature" :key="friend.username" />
+      <friend-item v-for="friend in friends" :image-url="friend.avatar" :name="friend.username" :signature="friend.signature" :key="friend.username" @click="onFriendClicked"/>
     </div>
     <div class="right-container column">
       aaa
@@ -30,6 +30,9 @@ export default {
       getFriendList().then(response => {
         this.friends = response.data
       })
+    },
+    onFriendClicked() {
+      
     }
   }
 }

@@ -30,7 +30,7 @@ router.get('/:friendID(\\d+)', function(req, res, next) {
               [req.user.userid, req.params.friendID]).then((results) => {
     res.json({
       code: constant.CODE_SUCCESS,
-      data: results
+      data: results[0]
     })
   }).catch(err => {
     console.error(err)

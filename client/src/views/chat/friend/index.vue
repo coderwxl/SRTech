@@ -1,7 +1,7 @@
 <template>
   <div class="components-container">
     <div class="left-container column">
-      <friend-item v-for="friend in friends" :image-url="friend.avatar" :name="friend.username" :signature="friend.signature" :key="friend.username" @click="onFriendClicked"/>
+      <friend-item v-for="friend in friends" :id="friend.id" :image-url="friend.avatar" :name="friend.username" :signature="friend.signature" :key="friend.username" :is-clicked="friend.isClicked" @item-click="onFriendClicked"/>
     </div>
     <div class="right-container column">
       aaa
@@ -28,11 +28,19 @@ export default {
   methods: {
     getFriends() {
       getFriendList().then(response => {
-        this.friends = response.data
+        this.friends = response.data.map(friend => {
+          return Object.assign({}, friend, { isClicked: false })
+        })
       })
     },
-    onFriendClicked() {
-      
+    onFriendClicked(id) {
+      this.friends.forEach(friend => {
+        if (friend.id == id) {
+          friend.isClicked = true
+        } else {
+          friend.isClicked = false
+        }
+      })
     }
   }
 }

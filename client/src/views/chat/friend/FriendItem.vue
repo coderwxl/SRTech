@@ -1,5 +1,5 @@
 <template>
-  <div class="friend-item">
+  <div class="friend-item" :style="{ '--bgcolor': isClicked ? '#dee4e4' : 'transparent', '--bghovercolor': isClicked ? '#dee4e4' : '#F7F8F8' }" @click="$emit('item-click', id)">
     <img :src="imageUrl" alt="暂无头像" class="user-avatar">
     <div class="info">
       <span class="name">{{ name }}</span>
@@ -12,9 +12,11 @@
   export default {
     name: 'FriendItem',
     props: { 
+      id: Number,
       imageUrl: String,
       name: String,
-      signature: String
+      signature: String,
+      isClicked: Boolean
     }
   }
 </script>
@@ -26,9 +28,10 @@
   height: 60px;
   width: 100%;
   padding-left: 10px;
+  background-color: var(--bgcolor);
 
   &:hover {
-    background-color: #F5F5F6;
+    background-color: var(--bghovercolor);
   }
 
   .user-avatar {

@@ -35,6 +35,7 @@
         <p><span class="title">住址</span><span>{{ detail.address }}</span></p>
       </div>
     </div>
+    <add-friend-dialog :dialog-visible.sync="dialogVisible" />
   </div>
 </template>
 
@@ -42,17 +43,19 @@
 import splitPane from 'vue-splitpane'
 import FriendItem from './FriendItem.vue'
 import { getFriendList, getFriendDetail } from '@/api/friend'
+import AddFriendDialog from './AddFriendDialog.vue'
 
 export default {
   name: 'SplitpaneDemo',
-  components: { splitPane, FriendItem },
+  components: { splitPane, FriendItem, AddFriendDialog },
   data() {
     return {
       friends: [],
       friendsBak: [],
       detail: {}, 
       hasDetail: false,
-      search: ''
+      search: '',
+      dialogVisible: false
     }
   },
   created() {
@@ -109,7 +112,7 @@ export default {
       })
     },
     addFriend() {
-      alert('add friend')
+      this.dialogVisible = true
     },
     onSearch(str) {
       console.log(str)

@@ -14,3 +14,19 @@ export function getFriendDetail(id) {
   })
 }
 
+export function getNewFriendList() {
+  return request({
+    url: '/friend/new',
+    method: 'get'
+  })
+}
+
+export function addNewFriend(name) {
+  return request({
+    url: '/friend/new/add',
+    method: 'post',
+    data: {
+      friendName: name
+    }
+  })
+}

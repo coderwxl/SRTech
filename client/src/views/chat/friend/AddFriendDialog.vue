@@ -1,8 +1,8 @@
 <template>
   <el-dialog class="mydialog" :visible="dialogVisible" :modal="false" @open="handleDialogOpen" @close="handleDialogClose">
-    <div class="main-container">
+    <div class="main">
       <div class="top-container">
-        <el-input placeholder="查找新朋友" v-model="input3" class="input-with-select">
+        <el-input placeholder="查找新朋友" v-model="search" class="input-with-select">
           <el-select v-model="select" slot="prepend" placeholder="请选择">
             <el-option
                   v-for="item in options"
@@ -15,13 +15,28 @@
         </el-input>
       </div>
       <div class="bottom-container">
-        <el-card :body-style="{ padding: '0px' }" v-for="n in 12">
-          <img src="https://shadow.elemecdn.com/app/element/hamburger.9cf7b091-55e9-11e9-a976-7f4d0b07eef6.png" class="image">
-          <div style="padding: 14px;">
-            <span>好吃的汉堡</span>
+        <el-card :body-style="{ padding: '0px' }" v-for="friend in new_friends" :key="friend.id">
+          <img :src="friend.avatar" class="image">
+          <div style="padding: 8px;">
+            <div>
+              <span style="font-size: 1.1em">{{ friend.username }}</span>
+              <el-button type="text" icon="fa fa-user-plus" class="button" @click="addFriend(friend.username)"></el-button>
+            </div>
             <div class="bottom clearfix">
-              <time class="time">{{ currentDate }}</time>
-              <el-button type="text" class="button">操作按钮</el-button>
+              <span class="time">{{ friend.signature }}</span>
+              <el-popover
+                placement="right-end"
+                width="180"
+                trigger="hover">
+                <div>
+                  <p><span class="info-title">工作</span><span>{{ friend.job }}</span></p>
+                  <p><span class="info-title">年龄</span><span>{{ friend.age }}</span></p>
+                  <p><span class="info-title">电话</span><span>{{ friend.phone }}</span></p>
+                  <p><span class="info-title">邮箱</span><span>{{ friend.email }}</span></p>
+                  <p><span class="info-title">住址</span><span>{{ friend.address }}</span></p>
+                </div>
+                <i class="fa fa-info-circle info"  slot="reference"></i>
+              </el-popover>
             </div>
           </div>
         </el-card>
@@ -31,17 +46,18 @@
 </template>
 
 <script>
-import { getInfo, editInfo } from '@/api/user'
-// import PublicMixin from '@/utils/public-mixin'
+import { getNewFriendList, addNewFriend } from '@/api/friend'
+import PublicMixin from '@/utils/public-mixin'
 
 export default {
   name: 'AddFriendDialog',
   props: {
     dialogVisible: Boolean
   },
-  // mixins: [PublicMixin],
+  mixins: [PublicMixin],
   data() {
     return {
+      new_friends: [],
       options: [{
           value: 1,
           label: '用户名'
@@ -55,7 +71,8 @@ export default {
           value: 4,
           label: '住址'
         }],
-      select: 1
+      select: 1,
+      search: ''
     }
   },
   created: function() {
@@ -70,13 +87,29 @@ export default {
   },
   methods: {
     handleDialogOpen() {
-
+      getNewFriendList().then(res => {
+        console.log(res.data)
+        this.new_friends = res.data.map(friend => {
+          return Object.assign({}, friend, { age: this.getAge(friend.birth_date) })
+        })
+      })
     },
     handleDialogClose() {
       this.$emit('update:dialogVisible', false)
     },
     searchFriends() {
       alert('search')
+    },
+    addFriend(name) {
+      addNewFriend(name).then(() => {
+        getNewFriendList().then(res => {
+          console.log(res.data)
+          this.new_friends = res.data.map(friend => {
+            return Object.assign({}, friend, { age: this.getAge(friend.birth_date) })
+          })
+        })
+        this.$emit('add-new-friend')
+      })
     }
   }
 }
@@ -91,6 +124,7 @@ export default {
 }
 
 .el-card {
+  height: 210px;
   width: 160px;
   margin: 20px;
 }
@@ -100,7 +134,7 @@ export default {
 }
 
 .bottom {
-  margin-top: 13px;
+  margin-top: 8px;
   line-height: 12px;
 }
 
@@ -109,9 +143,23 @@ export default {
   float: right;
 }
 
+.info {
+  font-size: 1em;
+  color: #999;
+  padding: 0;
+  float: right;
+}
+
+.info-title {
+  color: gray;  
+  margin-right: 8px;
+}
+
 .image {
+  height: 150px;
   width: 100%;
   display: block;
+  object-fit: cover;
 }
 
 .clearfix:before,
@@ -125,7 +173,7 @@ export default {
 }
 
 
-.main-container {
+.main {
 
   .top-container {
     padding-left: 150px;
@@ -136,7 +184,7 @@ export default {
 
   .bottom-container {
     width: 100%;
-    height: 400px;
+    height: 500px;
     overflow: auto;
     display: flex;
     flex-wrap: wrap;

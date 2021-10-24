@@ -7,8 +7,8 @@ var router = module.exports = express.Router();
 
 //获取朋友列表
 router.get('/', function(req, res, next) { 
-  mysql.query('select user.id, user.username, user_detail.avatar, user_detail.signature from user, user_detail, friend \
-              where user.id = user_detail.user_id and user.id=friend.friend_id and friend.user_id = ? and friend.is_blacklist = 0 order by user.username', 
+  mysql.query('select user.id, user.username, user.avatar, user.signature from user, friend \
+              where user.id=friend.friend_id and friend.user_id = ? and friend.is_blacklist = 0 order by user.username', 
               [req.user.userid]).then((results) => {
     console.log(results);
     res.json({
@@ -24,9 +24,9 @@ router.get('/', function(req, res, next) {
 //获取朋友详情
 //todo 一方删除的情况处理
 router.get('/:friendID(\\d+)', function(req, res, next) { 
-  mysql.query('select user.username, user_detail.avatar, user_detail.signature, user_detail.birth_date, user_detail.job, user_detail.address, user_detail.phone, \
-              user_detail.email, friend.add_time, friend.remark from user, user_detail, \
-              friend where user.id = user_detail.user_id and user.id=friend.friend_id and friend.user_id = ? and friend.friend_id = ? and friend.is_blacklist = 0 order by user.username', 
+  mysql.query('select user.username, user.avatar, user.signature, user.birth_date, user.job, user.address, user.phone, \
+              user.email, friend.add_time, friend.remark from user, \
+              friend where user.id=friend.friend_id and friend.user_id = ? and friend.friend_id = ? and friend.is_blacklist = 0 order by user.username', 
               [req.user.userid, req.params.friendID]).then((results) => {
     res.json({
       code: constant.CODE_SUCCESS,
@@ -50,24 +50,24 @@ output:
 *******************************************************/
 //添加朋友
 //todo 推送新朋友添加申请；处理status
-router.post('/',  validate.checkAddFriendName, function(req, res, next) { 
+router.post('/new/add',  validate.checkAddFriendName, function(req, res, next) {
   mysql.pool.getConnection(async(err, connection) => {
     if (err) return next(err);
     try {
-      await mysql.pool.connectionBeginTransaction(connection);
+      await mysql.connectionBeginTransaction(connection);
 
       try {
-        await mysql.connectionQuery(connection, 'insert into friend(user_id, friend_id) values(?, ?, ?)', [req.user.userid, res.locals.friendID]);
-        await mysql.connectionQuery(connection, 'insert into friend(user_id, friend_id) values(?, ?, ?)', [res.locals.friendID, req.user.userid]);
-        
-        await mysql.pool.connectionCommit(connection);
+        await mysql.connectionQuery(connection, 'insert into friend(user_id, friend_id) values(?, ?)', [req.user.userid, res.locals.friendID]);
+        await mysql.connectionQuery(connection, 'insert into friend(user_id, friend_id) values(?, ?)', [res.locals.friendID, req.user.userid]);
+
+        await mysql.connectionCommit(connection);
         connection.release();
 
         res.json({
           code: constant.CODE_SUCCESS
         })
       } catch (e) {
-        await mysql.pool.connectionRollback(connection);
+        await mysql.connectionRollback(connection);
         connection.release();
         return next(err);
       }
@@ -133,3 +133,24 @@ router.put('/blacklist/:friendID(\\d+)', function(req, res, next) {
     return next(err);
   })
 });
+
+/*******************************************************
+input:
+{
+}
+output:
+{
+  "code": 0
+}
+*******************************************************/
+router.get('/new', function(req, res, next) {
+  mysql.query('select id, username, avatar, signature, birth_date, job, address, phone, email from user where id not in (select friend_id from friend where user_id=?) and id != ?', [req.user.userid, req.user.userid]).then(results => {
+    res.json({
+      code: constant.CODE_SUCCESS,
+      data: results
+    })
+  }).catch(err => {
+    console.error(err)
+    return next(err);
+  })
+})

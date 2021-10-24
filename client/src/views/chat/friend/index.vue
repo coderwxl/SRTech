@@ -35,7 +35,7 @@
         <p><span class="title">住址</span><span>{{ detail.address }}</span></p>
       </div>
     </div>
-    <add-friend-dialog :dialog-visible.sync="dialogVisible" />
+    <add-friend-dialog :dialog-visible.sync="dialogVisible" @add-new-friend="getFriends"/>
   </div>
 </template>
 
@@ -44,6 +44,7 @@ import splitPane from 'vue-splitpane'
 import FriendItem from './FriendItem.vue'
 import { getFriendList, getFriendDetail } from '@/api/friend'
 import AddFriendDialog from './AddFriendDialog.vue'
+import PublicMixin from '@/utils/public-mixin'
 
 export default {
   name: 'SplitpaneDemo',
@@ -58,6 +59,7 @@ export default {
       dialogVisible: false
     }
   },
+  mixins: [PublicMixin],
   created() {
     this.getFriends()
   },
@@ -68,25 +70,6 @@ export default {
       } else {
         return false
       }
-    },
-    getAge(date) {
-      console.log(date)
-      let age = 0
-      let friendDate = new Date(date);
-      let now = new Date()
-      if (now.getMonth() > friendDate.getMonth()) {
-        age = now.getFullYear() - friendDate.getFullYear()
-      } else if (now.getMonth() < friendDate.getMonth()) {
-        age = now.getFullYear() - friendDate.getFullYear() - 1
-      } else {
-        if (now.getDate() >= friendDate.getDate()) {
-          age = now.getFullYear() - friendDate.getFullYear()
-        } else {
-          age = now.getFullYear() - friendDate.getFullYear() - 1
-        }
-      }
-      
-      return age
     },
     getFriends() {
       getFriendList().then(response => {

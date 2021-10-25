@@ -30,3 +30,20 @@ export function addNewFriend(name) {
     }
   })
 }
+
+export function deleteFriend(id) {
+  return request({
+    url: '/friend/' + id,
+    method: 'delete'
+  })
+}
+
+export function changeFriendRemark(id, remark) {
+  return request({
+    url: '/friend/remark/' + id,
+    method: 'put',
+    data: { 
+      remark: remark
+    }
+  })
+}

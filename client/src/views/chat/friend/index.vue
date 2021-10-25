@@ -16,7 +16,12 @@
           <el-button icon="el-icon-plus" size="small" @click.native.prevent="addFriend"></el-button>
         </el-tooltip>
       </div>
-      <friend-item v-for="friend in friends" :id="friend.id" :image-url="friend.avatar" :name="friend.username" :signature="friend.signature" :key="friend.username" :is-clicked="friend.isClicked" @item-click="onFriendClicked"/>
+      <div>
+        <friend-item v-for="friend in friends" :id="friend.id" :image-url="friend.avatar" :name="friend.username" :signature="friend.signature" :key="friend.username" :is-clicked="friend.isClicked" 
+          @item-click="onFriendClicked"
+          @refresh="getFriends"
+          @edit-remark="editRemark"/>
+      </div>
     </div>
     <div v-if="hasDetail" class="right-container column">
       <div class="detail-1">
@@ -27,7 +32,9 @@
         <img :src="detail.avatar" alt="暂无头像" class="avatar">
       </div>
       <div class="detail-2">
-        <p><span class="title">备注</span><span>{{ detail.remark }}</span></p>
+        <p><span class="title">备注</span>
+        <el-input v-if="isEdit" v-model="detail.remark" @change="changeRemark(detail.id, detail.remark)" size="small"/>
+        <span v-else>{{ detail.remark }}</span></p>
         <p><span class="title">电话</span><span>{{ detail.phone }}</span></p>
         <p><span class="title">邮箱</span><span>{{ detail.email }}</span></p>
         <p><span class="title">工作</span><span>{{ detail.job }}</span></p>
@@ -42,7 +49,7 @@
 <script>
 import splitPane from 'vue-splitpane'
 import FriendItem from './FriendItem.vue'
-import { getFriendList, getFriendDetail } from '@/api/friend'
+import { getFriendList, getFriendDetail, changeFriendRemark } from '@/api/friend'
 import AddFriendDialog from './AddFriendDialog.vue'
 import PublicMixin from '@/utils/public-mixin'
 
@@ -56,7 +63,8 @@ export default {
       detail: {}, 
       hasDetail: false,
       search: '',
-      dialogVisible: false
+      dialogVisible: false,
+      isEdit: false
     }
   },
   mixins: [PublicMixin],
@@ -72,6 +80,7 @@ export default {
       }
     },
     getFriends() {
+      this.hasDetail = false
       getFriendList().then(response => {
         this.friends = response.data.map(friend => {
           return Object.assign({}, friend, { isClicked: false })
@@ -80,6 +89,7 @@ export default {
       })
     },
     onFriendClicked(id) {
+      this.isEdit = false
       this.hasDetail = true
       this.friends.forEach(friend => {
         if (friend.id == id) {
@@ -107,6 +117,13 @@ export default {
       this.friends = this.friendsBak.filter(friend => {
         return friend.username.indexOf(str) !== -1
       })
+    },
+    editRemark() {
+      this.isEdit = true
+    },
+    changeRemark(id, remark) {
+      this.isEdit = false
+      changeFriendRemark(id, remark)
     }
   }
 }

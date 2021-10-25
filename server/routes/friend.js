@@ -10,7 +10,6 @@ router.get('/', function(req, res, next) {
   mysql.query('select user.id, user.username, user.avatar, user.signature from user, friend \
               where user.id=friend.friend_id and friend.user_id = ? and friend.is_blacklist = 0 order by user.username', 
               [req.user.userid]).then((results) => {
-    console.log(results);
     res.json({
       code: constant.CODE_SUCCESS,
       data: results
@@ -24,7 +23,7 @@ router.get('/', function(req, res, next) {
 //获取朋友详情
 //todo 一方删除的情况处理
 router.get('/:friendID(\\d+)', function(req, res, next) { 
-  mysql.query('select user.username, user.avatar, user.signature, user.birth_date, user.job, user.address, user.phone, \
+  mysql.query('select user.id, user.username, user.avatar, user.signature, user.birth_date, user.job, user.address, user.phone, \
               user.email, friend.add_time, friend.remark from user, \
               friend where user.id=friend.friend_id and friend.user_id = ? and friend.friend_id = ? and friend.is_blacklist = 0 order by user.username', 
               [req.user.userid, req.params.friendID]).then((results) => {

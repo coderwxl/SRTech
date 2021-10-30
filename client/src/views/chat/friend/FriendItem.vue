@@ -44,15 +44,22 @@ import { deleteFriend } from '@/api/friend'
               label: "删除好友",
               icon: "el-icon-delete",
               onClick: () => {
-                deleteFriend(this.id).then(() => {
-                  this.$emit("refresh")
+                this.$confirm('注册成功，是否返回登录页面', '提示', {
+                  confirmButtonText: '是',
+                  cancelButtonText: '否',
+                  type: 'success'
+                }).then(() => {
+                  deleteFriend(this.id).then(() => {
+                    this.$emit("refresh")
+                  })
                 })
               }
             }
           ],
           event,
           zIndex: 3,
-          minWidth: 100
+          minWidth: 100,
+          customClass: "custom-menu"
         });
         return false;
       }
@@ -61,6 +68,9 @@ import { deleteFriend } from '@/api/friend'
 </script>
 
 <style lang="scss" scoped>
+.custom-menu .menu{
+  padding: 4px 0;
+}
 .friend-item {
   display: flex;
   align-items: center;

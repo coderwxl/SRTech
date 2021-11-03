@@ -66,14 +66,14 @@ CREATE TABLE IF NOT EXISTS `user_chat`
     `user_id`   INT UNSIGNED    NOT NULL,
     `chat_id`   INT UNSIGNED    NOT NULL,
     `is_visible`TINYINT(1)      DEFAULT 1,
-    `update_time`   DATETIME    NOT NULL
+    `type`      TINYINT(1)      NOT NULL DEFAULT 1 COMMENT '1:用户 2:群',
+    `friend_id` INT UNSIGNED,
+    `group_id`  INT UNSIGNED
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `chat`
 (
     `id`        INT UNSIGNED    NOT NULL AUTO_INCREMENT,
-    `type`      TINYINT(1)      NOT NULL COMMENT '1:用户 2:群',
-    `group_id`  INT UNSIGNED,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

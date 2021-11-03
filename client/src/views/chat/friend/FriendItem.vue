@@ -44,7 +44,7 @@ import { deleteFriend } from '@/api/friend'
               label: "删除好友",
               icon: "el-icon-delete",
               onClick: () => {
-                this.$confirm('注册成功，是否返回登录页面', '提示', {
+                this.$confirm('确定删除该好友吗？', '提示', {
                   confirmButtonText: '是',
                   cancelButtonText: '否',
                   type: 'success'

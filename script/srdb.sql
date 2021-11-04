@@ -61,6 +61,7 @@ CREATE TABLE IF NOT EXISTS `group_detail`
     `nickname`  VARCHAR(32)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `user_chat`;
 CREATE TABLE IF NOT EXISTS `user_chat`
 (
     `user_id`   INT UNSIGNED    NOT NULL,
@@ -68,27 +69,31 @@ CREATE TABLE IF NOT EXISTS `user_chat`
     `is_visible`TINYINT(1)      DEFAULT 1,
     `type`      TINYINT(1)      NOT NULL DEFAULT 1 COMMENT '1:用户 2:群',
     `friend_id` INT UNSIGNED,
-    `group_id`  INT UNSIGNED
+    `group_id`  INT UNSIGNED,
+    `time`      DATETIME(3)        NOT NULL DEFAULT NOW(3)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `chat`;
 CREATE TABLE IF NOT EXISTS `chat`
 (
     `id`        INT UNSIGNED    NOT NULL AUTO_INCREMENT,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `message`;
 CREATE TABLE IF NOT EXISTS `message`
 (
     `id`        BIGINT UNSIGNED    NOT NULL AUTO_INCREMENT,
     `chat_id`   INT UNSIGNED    NOT NULL,
     `user_id`   INT UNSIGNED    NOT NULL,
     `data`      TEXT            NOT NULL,
-    `time`      DATETIME        NOT NULL,
+    `time`      DATETIME(3)        NOT NULL DEFAULT NOW(3),
     `is_undo`   TINYINT(1)      DEFAULT 0,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 #用户删除的聊天记录
+DROP TABLE IF EXISTS `user_del_message`;
 CREATE TABLE IF NOT EXISTS `user_del_message`
 (
     `user_id`   INT UNSIGNED    NOT NULL,
@@ -119,3 +124,16 @@ ALTER TABLE `message` ADD CONSTRAINT `fk_message_user_id` FOREIGN KEY (`user_id`
 
 ALTER TABLE `user_del_message` ADD CONSTRAINT `fk_user_del_message_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `user_del_message` ADD CONSTRAINT `fk_user_del_message_message_id` FOREIGN KEY (`message_id`) REFERENCES `message` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+#####################
+# Define triggers
+#####################
+DROP TRIGGER IF EXISTS message_trigger;
+delimiter //
+CREATE TRIGGER message_trigger AFTER INSERT ON message 
+FOR EACH ROW
+BEGIN
+    UPDATE `user_chat` SET `time` = NOW(3) WHERE `chat_id` = NEW.chat_id;
+END;//
+delimiter ;

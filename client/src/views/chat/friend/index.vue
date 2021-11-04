@@ -54,7 +54,7 @@ import AddFriendDialog from './AddFriendDialog.vue'
 import PublicMixin from '@/utils/public-mixin'
 
 export default {
-  name: 'SplitpaneDemo',
+  name: 'Friend',
   components: { splitPane, FriendItem, AddFriendDialog },
   data() {
     return {

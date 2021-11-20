@@ -20,7 +20,20 @@ import '@/icons' // icon
 import '@/permission' // permission control
 
 import Contextmenu from "vue-contextmenujs"
+import VueSocketIOExt from 'vue-socket.io-extended';
+import { io } from 'socket.io-client';
+
+import { getToken } from '@/utils/auth'
+
 Vue.use(Contextmenu);
+
+const socket = io('http://192.168.31.159:3000', {
+  auth: {
+    token: "abcd"
+  }
+});
+
+Vue.use(VueSocketIOExt, socket);
 
 
 /**
@@ -51,5 +64,25 @@ new Vue({
   el: '#app',
   router,
   store,
-  render: h => h(App)
+  render: h => h(App),
+  sockets: {
+    connect() {
+      console.log('socket connected')
+    },
+    connect_error() {
+      setTimeout(() => {
+        if (getToken()) {
+          this.$socket.client.auth.token = getToken()
+        }
+        this.$socket.client.connect();
+      }, 1000);
+    },
+    disconnect(reason) {
+      console.log('socket disconnect: ' + reason)
+    },
+    serverEvent(val) {
+      console.log(`receive serverEvent: ${val}`)
+      this.$socket.client.emit('clientEvent', 'hello')
+    }
+  }
 })

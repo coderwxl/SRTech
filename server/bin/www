@@ -7,13 +7,18 @@
 var app = require('../app');
 // var debug = require('debug')('server:server'); //目前永不上
 var http = require('http');
+var https = require('https')
+var path = require('path')
+var fs = require('fs')
+
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
+var httpPort = 80;
+var httpsPort = 443;
+app.set('port', httpPort);
 
 /**
  * Create HTTP server.
@@ -25,9 +30,19 @@ var server = http.createServer(app);
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port);
+ var credentials = {
+  key: fs.readFileSync(path.join(__dirname, '../cert/server.key')),
+  cert: fs.readFileSync(path.join(__dirname, '../cert/server.cert'))
+};
+var servers = https.createServer(credentials, app);
+
+server.listen(httpPort);
 server.on('error', onError);
 server.on('listening', onListening);
+
+servers.listen(httpsPort);
+servers.on('error', onHttpsError);
+servers.on('listening', onHttpsListening);
 
 /**
  * Normalize a port into a number, string, or false.
@@ -58,9 +73,33 @@ function onError(error) {
     throw error;
   }
 
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
+  var bind = typeof httpPort === 'string'
+    ? 'Pipe ' + httpPort
+    : 'Port ' + httpPort;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+function onHttpsError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof httpsPort === 'string'
+    ? 'Pipe ' + httpsPort
+    : 'Port ' + httpsPort;
 
   // handle specific listen errors with friendly messages
   switch (error.code) {
@@ -83,6 +122,15 @@ function onError(error) {
 
 function onListening() {
   var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  // debug('Listening on ' + bind);
+  console.log('Listening on ' + bind);
+}
+
+function onHttpsListening() {
+  var addr = servers.address();
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;

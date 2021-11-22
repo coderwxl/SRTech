@@ -4,6 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var expressJwt = require('express-jwt')
+// var cors = require('cors');
 
 var constant = require('./utils/constant')
 var usersRouter = require('./routes/user');
@@ -11,6 +12,14 @@ var friendRouter = require('./routes/friend');
 var chatRouter = require('./routes/chat');
 
 var app = express();
+
+// const corsConfig = {
+//   origin: true,
+//   methods: ["GET","POST"],
+//   credentials: true,
+//   maxAge: 60
+// };
+// app.use(cors(corsConfig));
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'userdata')));

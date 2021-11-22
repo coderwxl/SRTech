@@ -80,6 +80,15 @@ CREATE TABLE IF NOT EXISTS `chat`
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+
+#用户删除的聊天记录
+DROP TABLE IF EXISTS `user_del_message`;
+CREATE TABLE IF NOT EXISTS `user_del_message`
+(
+    `user_id`   INT UNSIGNED    NOT NULL,
+    `message_id`BIGINT UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 DROP TABLE IF EXISTS `message`;
 CREATE TABLE IF NOT EXISTS `message`
 (
@@ -91,15 +100,6 @@ CREATE TABLE IF NOT EXISTS `message`
     `is_undo`   TINYINT(1)      DEFAULT 0,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-#用户删除的聊天记录
-DROP TABLE IF EXISTS `user_del_message`;
-CREATE TABLE IF NOT EXISTS `user_del_message`
-(
-    `user_id`   INT UNSIGNED    NOT NULL,
-    `message_id`BIGINT UNSIGNED NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 
 
 

@@ -39,7 +39,7 @@ module.exports = {
     // before: require('./mock/mock-server.js'),
     proxy: {
       '.*': {
-        target: 'http://localhost:3000',
+        target: 'http://192.168.18.188:80', //todo
         ws: true
       }
     }

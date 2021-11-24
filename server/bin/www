@@ -52,8 +52,6 @@ io.use(wrap(expressJwt({
   }
 })))
 
-
-
 io.on("connection", (socket) => {
   console.log(socket.handshake.auth.user)
   console.log('a user connected');

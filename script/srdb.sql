@@ -1,4 +1,5 @@
-CREATE DATABASE IF NOT EXISTS srdb;
+DROP DATABASE IF EXISTS `srdb`;
+CREATE DATABASE IF NOT EXISTS `srdb`;
 
 USE srdb;
 
@@ -116,8 +117,6 @@ ALTER TABLE `group_detail` ADD CONSTRAINT `fk_group_detail_user_id` FOREIGN KEY 
 
 ALTER TABLE `user_chat` ADD CONSTRAINT `fk_user_chat_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `user_chat` ADD CONSTRAINT `fk_user_chat_chat_id` FOREIGN KEY (`chat_id`) REFERENCES `chat` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
-ALTER TABLE `chat` ADD CONSTRAINT `fk_chat_group_id` FOREIGN KEY (`group_id`) REFERENCES `group` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `message` ADD CONSTRAINT `fk_message_chat_id` FOREIGN KEY (`chat_id`) REFERENCES `chat` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `message` ADD CONSTRAINT `fk_message_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;

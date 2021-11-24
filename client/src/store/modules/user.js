@@ -1,5 +1,5 @@
 import { login, logout, getInfo } from '@/api/user'
-import { getToken, setToken, removeToken } from '@/utils/auth'
+import { getToken, setToken, removeToken, removeServerAddress, setServerAddress, getServerAddress } from '@/utils/auth'
 import { resetRouter } from '@/router'
 
 const getDefaultState = () => {
@@ -39,6 +39,7 @@ const actions = {
       login({ username: username.trim(), password: password }).then(response => {
         commit('SET_TOKEN', response.token)
         setToken(response.token)
+        setServerAddress((response.serverPort === 443 ? "https://" : "http://") + response.serverAddress.slice(response.serverAddress.lastIndexOf(":")+1) + ":" + response.serverPort)
         resolve()
       }).catch(error => {
         reject(error)
@@ -73,6 +74,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       logout().then(() => {
         removeToken() // must remove  token  first
+        removeServerAddress()
         resetRouter()
         commit('RESET_STATE')
         resolve()

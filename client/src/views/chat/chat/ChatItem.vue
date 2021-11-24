@@ -1,5 +1,5 @@
 <template>
-  <div class="chat-item" :style="{ '--bgcolor': isClicked ? '#dee4e4' : 'transparent', '--bghovercolor': isClicked ? '#dee4e4' : '#F7F8F8' }" @click="$emit('item-click', chatID)" @contextmenu.prevent="onContextmenu">
+  <div class="chat-item" :style="{ '--bgcolor': isClicked ? '#dee4e4' : 'transparent', '--bghovercolor': isClicked ? '#dee4e4' : '#F7F8F8' }" @click="$emit('item-click', chatId)" @contextmenu.prevent="onContextmenu">
     <img :src="imageUrl" alt="暂无头像" class="user-avatar">
     <div class="info">
       <div>
@@ -17,7 +17,7 @@
   export default {
     name: 'ChatItem',
     props: {
-      chatID: Number,
+      chatId: Number,
       imageUrl: String,
       name: String,
       message: String,
@@ -88,7 +88,7 @@
         if (this.time.getFullYear() === today.getFullYear() 
           && this.time.getMonth() === today.getMonth()
           && this.time.getDate() === today.getDate()) {
-          return `${today.getHours}:${today.getSeconds}`;
+          return `${today.getHours()}:${today.getSeconds()}`
         } else if (this.time.getFullYear() === today.getFullYear() 
           && this.time.getMonth() === today.getMonth()
           && this.time.getDate() === today.getDate() - 1) {
@@ -125,7 +125,9 @@
   }
 
   .info {
+    width: 100%;
     margin-left: 10px;
+    margin-right: 15px;
     display: flex;
     flex-direction: column;
     justify-content: center;

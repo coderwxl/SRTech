@@ -23,17 +23,27 @@ import Contextmenu from "vue-contextmenujs"
 import VueSocketIOExt from 'vue-socket.io-extended';
 import { io } from 'socket.io-client';
 
-import { getToken } from '@/utils/auth'
+import { getToken, getServerAddress } from '@/utils/auth'
 
 Vue.use(Contextmenu);
 
-const socket = io('http://192.168.31.159:3000', {
-  auth: {
-    token: "abcd"
-  }
-});
+// setTimeout(() => {
+//   // Vue.$root.$destroy();
+//   window.location.reload()
+//   //后面把地址改成动态获取的
 
-Vue.use(VueSocketIOExt, socket);
+// }, 5000);
+
+let serverAddress = getServerAddress();
+if (serverAddress) {
+  const socket = io(serverAddress, {
+    auth: {
+      token: ""
+    }
+  });
+  
+  Vue.use(VueSocketIOExt, socket);
+}
 
 
 /**

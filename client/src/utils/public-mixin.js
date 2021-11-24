@@ -1,10 +1,13 @@
-// import dayjs from 'dayjs'
+import dayjs from 'dayjs'
+import customParseFormat from 'dayjs/plugin/customParseFormat'
+
+dayjs.extend(customParseFormat)
 
 export default {
   methods: {
-    // DateTimeFormat(datetime, format) {
-    //   return dayjs(datetime).format(format)
-    // },
+    StringToDate(dateStr, format) {
+      return dayjs(dateStr, format).toDate()
+    },
     getAge(date) {
       console.log(date)
       let age = 0

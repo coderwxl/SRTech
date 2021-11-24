@@ -15,7 +15,9 @@ router.post('/login', validate.checkLoginUsername, validate.checkLoginPassword, 
     token: jwt.sign(
       { userid: res.locals.userid, username: res.locals.username, role: res.locals.role }, 
       constant.SECRET, 
-      { algorithm: 'HS256', expiresIn: constant.EXP })
+      { algorithm: 'HS256', expiresIn: constant.EXP }),
+    serverAddress: req.socket.localAddress,
+    serverPort: req.socket.localPort
   })
 });
 

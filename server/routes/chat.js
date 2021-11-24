@@ -12,14 +12,12 @@ router.get('/list', function(req, res, next) {
       .then(async(results) => {
         for (let element of results) {
           chatMessage = await mysql.query('select data from message where chat_id = ? order by time desc limit 1', [element.chat_id]);
-          console.log(chatMessage);
           if (chatMessage.length) {
             element.message = chatMessage[0].data;
           } else {
             element.message = '';
           }
         }
-        console.log(results);
         res.json({
           code: constant.CODE_SUCCESS,
           data: results
@@ -32,7 +30,7 @@ router.get('/list', function(req, res, next) {
 
 //获取聊天详情
 router.get('/list/:chatID(\\d+)', function(req, res, next) { 
-  mysql.query('select message.user_id, message.data, message.time, user.username, user.avatar  from message left join user on message.user_id = user.id where message.chat_id = ? order by message.time asc', 
+  mysql.query('select message.id, message.user_id, message.data, message.time, user.username, user.avatar  from message left join user on message.user_id = user.id where message.chat_id = ? order by message.time asc', 
               [req.params.chatID]).then((results) => {
     console.log(results);
     res.json({

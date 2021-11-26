@@ -1,9 +1,7 @@
 <template>
-  <div>
-    <div class="main" :style="{ '--flexdir': isMe ? 'row-reverse' : 'row' }">
-      <img :src="message.avatar" alt="暂无头像" class="avatar">
-      <div class="data">{{ message.data }}</div>
-    </div>
+  <div class="main" :style="{ '--flexdir': isMe ? 'row-reverse' : 'row', '--databg' : isMe ? '#C9E7FF' : 'white', '--dataml': isMe ? '0' : '8px', '--datamr': isMe ? '8px' : '0' }">
+    <img :src="message.avatar" alt="暂无头像" class="avatar">
+    <div class="data">{{ message.data }}</div>
   </div>
 </template>
 
@@ -28,18 +26,23 @@
 <style lang="scss" scoped>
 .main {
   display: flex;
+  align-items: center;
   flex-direction: var(--flexdir);
-  margin: 5px;
+  padding: 7px;
 
   .avatar {
-    width: 30px;
-    height: 30px;
-    border-radius: 10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
     object-fit: contain;
   }
 
   .data {
-    background-color: lightgrey;
+    background-color: var(--databg);
+    padding: 7px;
+    border-radius: 4px;
+    margin-left: var(--dataml);
+    margin-right: var(--datamr);
   }
 }
 </style>

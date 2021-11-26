@@ -13,6 +13,11 @@
         </template>
         <template slot="paneR">
           <div class="bottom-container">
+            <el-input type="textarea" class="input-area" v-model="inputdata"></el-input>
+            <div class="tip-button-row">
+              <span>Enter 发送，Ctrl+Enter 换行</span>
+              <el-button type="primary" @click.native.prevent="onSubmit">发送</el-button>
+            </div>
           </div>
         </template>
       </split-pane>
@@ -34,7 +39,8 @@ export default {
     return {
       chatList: [],
       hasDetail: false,
-      messageList: []
+      messageList: [],
+      inputdata: ''
     }
   },
   mixins: [ PublicMixin ],
@@ -88,14 +94,28 @@ export default {
 }
 
 .top-container {
-  /* background-color: #F38181; */
+  background-color: #F1F2F3;
   width: 100%;
   height: 100%;
+
 }
 
 .bottom-container {
   /* background-color: #FCE38A; */
   width: 100%;
   height: 100%;
+}
+
+.tip-button-row {
+  display: flex;
+  justify-content: flex-end;
+  height: 50px;
+}
+
+::v-deep .el-textarea{
+  height: calc(100%-50px);
+}
+.input-area {
+  height: calc(100%-50px);
 }
 </style>

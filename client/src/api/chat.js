@@ -13,3 +13,14 @@ export function getChatDetail(chatID) {
     method: 'get'
   })
 }
+
+export function sendMessage(id, msg) {
+  return request({
+    url: '/chat/message',
+    method: 'post',
+    data: { 
+      chatID: id,
+      message: msg
+    }
+  })
+}

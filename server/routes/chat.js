@@ -2,6 +2,7 @@ var express = require('express');
 var mysql = require('../utils/mysql-common')
 var validate = require('../utils/validate')
 var constant = require('../utils/constant')
+var socket = require('../utils/socket')
 
 var router = module.exports = express.Router();
 
@@ -42,3 +43,20 @@ router.get('/list/:chatID(\\d+)', function(req, res, next) {
     return next(err);
   })
 });
+
+router.post('/message', async function(req, res, next) {
+  try {
+    await mysql.query('insert into message(chat_id, user_id, data) values(?, ?, ?)', [req.body.chatID, req.user.userid, req.body.message]);
+    let results = await mysql.query('select friend_id from user_chat where user_id = ? and chat_id = ?', [req.user.userid, req.body.chatID]);
+    for (let obj of results) {
+      socket.sendMessage(obj.friend_id, {
+        [req.body.chatID]: req.body.message
+      });
+    }
+    res.json({
+      code: constant.CODE_SUCCESS
+    })
+  } catch (err) {
+    return next(err);
+  }
+})

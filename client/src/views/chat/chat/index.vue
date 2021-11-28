@@ -13,10 +13,10 @@
         </template>
         <template slot="paneR">
           <div class="bottom-container">
-            <el-input type="textarea" class="input-area" v-model="inputdata"></el-input>
+            <div contenteditable="true" class="input-area" ref="inputarea"></div>
             <div class="tip-button-row">
-              <span>Enter 发送，Ctrl+Enter 换行</span>
-              <el-button type="primary" @click.native.prevent="onSubmit">发送</el-button>
+              <span class="tip">Enter 发送，Ctrl+Enter 换行</span>
+              <el-button class="send-button" type="primary" @click="onSubmit">发送</el-button>
             </div>
           </div>
         </template>
@@ -28,7 +28,7 @@
 <script>
 import splitPane from 'vue-splitpane'
 import ChatItem from './ChatItem.vue'
-import { getChatList, getChatDetail } from '@/api/chat'
+import { getChatList, getChatDetail, sendMessage } from '@/api/chat'
 import PublicMixin from '@/utils/public-mixin'
 import MessageItem from './messageItem.vue'
 
@@ -40,7 +40,8 @@ export default {
       chatList: [],
       hasDetail: false,
       messageList: [],
-      inputdata: ''
+      inputdata: '',
+      currentChatId: null
     }
   },
   mixins: [ PublicMixin ],
@@ -56,6 +57,7 @@ export default {
       })
     },
     onChatItemClicked(id) {
+      this.currentChatId = id
       this.hasDetail = true
       this.chatList.forEach(chat => {
         if (chat.chat_id == id) {
@@ -67,6 +69,24 @@ export default {
       getChatDetail(id).then(res => {
         this.messageList = res.data
       })
+    },
+    onSubmit() {  
+      sendMessage(this.currentChatId, this.$refs.inputarea.innerHTML).then(res => {
+        this.$refs.inputarea.innerHTML = ''
+        getChatDetail(this.currentChatId).then(res => {
+          this.messageList = res.data
+        })
+      })
+    }
+  },
+  sockets: {
+    newMessage(val) {
+      let msg = JSON.parse(val)
+      if (this.currentChatId && msg[this.currentChatId.toString()]) {
+        getChatDetail(this.currentChatId).then(res => {
+          this.messageList = res.data
+        })
+      }
     }
   }
 }
@@ -101,21 +121,27 @@ export default {
 }
 
 .bottom-container {
-  /* background-color: #FCE38A; */
   width: 100%;
   height: 100%;
 }
 
-.tip-button-row {
+.tip-button-row {       
   display: flex;
   justify-content: flex-end;
+  align-items: center;
   height: 50px;
 }
 
-::v-deep .el-textarea{
-  height: calc(100%-50px);
-}
 .input-area {
-  height: calc(100%-50px);
+  height: calc(100% - 50px);
+}
+
+.send-button {
+  margin-left: 10px;
+  margin-right: 15px;
+}
+
+.tip {
+  color: gray
 }
 </style>

@@ -89,10 +89,6 @@ new Vue({
     },
     disconnect(reason) {
       console.log('socket disconnect: ' + reason)
-    },
-    serverEvent(val) {
-      console.log(`receive serverEvent: ${val}`)
-      this.$socket.client.emit('clientEvent', 'hello')
     }
   }
 })

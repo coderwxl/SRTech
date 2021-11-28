@@ -65,7 +65,7 @@ service.interceptors.response.use(
         })
       } else {
         Message({
-          message: res.message || 'Error',
+          message: res.message || 'Error:'+res.code,
           type: 'error',
           duration: 4 * 1000
         })

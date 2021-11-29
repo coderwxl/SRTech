@@ -6,7 +6,7 @@
         <span class="name">{{ name }}</span>
         <span class="time">{{ handledTime }}</span>
       </div>
-      <span class="message">{{ message }}</span>
+      <div class="message" v-html="message"></div>
     </div>
   </div>
 </template>
@@ -144,6 +144,8 @@
       font-size: 0.7em;
       color: grey;
       margin-top: 5px;
+      height: 1em;
+      overflow: hidden;
     }
   }
 

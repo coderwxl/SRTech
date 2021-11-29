@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import { deleteFriend } from '@/api/friend'
+import { deleteFriend, sendMessage } from '@/api/friend'
 
   export default {
     name: 'FriendItem',
@@ -29,7 +29,9 @@ import { deleteFriend } from '@/api/friend'
               label: "发送消息",
               icon: "el-icon-chat-dot-round",
               onClick: () => {
-                console.log("发送消息" + this.name);
+                sendMessage(this.id).then(() => {
+                  this.$router.push({ path: '/chat/chat' , query: { friendId: this.id }})
+                })
               }
             },
             {

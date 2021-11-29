@@ -7,7 +7,7 @@
     <div v-if="hasDetail" class="right-container column">
       <split-pane split="horizontal" :default-percent="75" :min-percent="20">
         <template slot="paneL">
-          <div class="top-container">
+          <div ref="msgct" class="top-container">
             <message-item v-for="message in messageList" :message="message" :key="message.id" />
           </div>
         </template>
@@ -16,7 +16,7 @@
             <div contenteditable="true" class="input-area" ref="inputarea"></div>
             <div class="tip-button-row">
               <span class="tip">Enter 发送，Ctrl+Enter 换行</span>
-              <el-button class="send-button" type="primary" @click="onSubmit">发送</el-button>
+              <el-button class="send-button" type="primary" size="medium" @click="onSubmit">发送</el-button>
             </div>
           </div>
         </template>
@@ -41,18 +41,23 @@ export default {
       hasDetail: false,
       messageList: [],
       inputdata: '',
-      currentChatId: null
+      currentChatId: null,
+      currentFriendId: null
     }
   },
   mixins: [ PublicMixin ],
   created() {
+    this.currentFriendId=this.$route.query.friendId;
     this.getChats()
   },
   methods: {
     getChats() {
       getChatList().then(response => {
         this.chatList = response.data.map(chat => {
-          return Object.assign({}, chat, { isClicked: false, time2: this.StringToDate(chat.time, "YYYY-MM-DD HH:mm:ss.SSS") })
+          if (this.currentFriendId === chat.friend_id) {
+            this.onChatItemClicked(chat.chat_id)
+          }
+          return Object.assign({}, chat, { isClicked: this.currentFriendId === chat.friend_id ? true : false, time2: this.StringToDate(chat.time, "YYYY-MM-DD HH:mm:ss.SSS") })
         })
       })
     },
@@ -61,6 +66,7 @@ export default {
       this.hasDetail = true
       this.chatList.forEach(chat => {
         if (chat.chat_id == id) {
+          this.currentFriendId = chat.friend_id
           chat.isClicked = true
         } else {
           chat.isClicked = false
@@ -68,23 +74,43 @@ export default {
       })
       getChatDetail(id).then(res => {
         this.messageList = res.data
+        this.$nextTick(function() {
+          this.$refs.msgct.scrollTop = this.$refs.msgct.scrollHeight - this.$refs.msgct.clientHeight
+        })
       })
     },
     onSubmit() {  
-      sendMessage(this.currentChatId, this.$refs.inputarea.innerHTML).then(res => {
+      sendMessage(this.currentChatId, this.currentFriendId, this.$refs.inputarea.innerHTML).then(() => {
         this.$refs.inputarea.innerHTML = ''
-        getChatDetail(this.currentChatId).then(res => {
-          this.messageList = res.data
-        })
       })
     }
   },
   sockets: {
     newMessage(val) {
-      let msg = JSON.parse(val)
-      if (this.currentChatId && msg[this.currentChatId.toString()]) {
+      for (let id in val) {
+        let find = false
+        for (let obj of this.chatList) {
+          if (obj.chat_id.toString() === id) {
+            obj.message = val[id]
+            find = true
+            break
+          }
+        }
+        if (!find) {
+          getChatList().then(response => {
+            this.chatList = response.data.map(chat => {
+              return Object.assign({}, chat, { isClicked: this.currentFriendId === chat.friend_id ? true : false, time2: this.StringToDate(chat.time, "YYYY-MM-DD HH:mm:ss.SSS") })
+            })
+          })
+          break
+        }
+      }
+      if (this.currentChatId && val[this.currentChatId.toString()]) {
         getChatDetail(this.currentChatId).then(res => {
           this.messageList = res.data
+          this.$nextTick(function() {
+            this.$refs.msgct.scrollTop = this.$refs.msgct.scrollHeight - this.$refs.msgct.clientHeight
+          })
         })
       }
     }
@@ -117,7 +143,7 @@ export default {
   background-color: #F1F2F3;
   width: 100%;
   height: 100%;
-
+  overflow: auto;
 }
 
 .bottom-container {
@@ -134,6 +160,8 @@ export default {
 
 .input-area {
   height: calc(100% - 50px);
+  padding: 10px;
+  overflow: auto;
 }
 
 .send-button {
@@ -142,6 +170,7 @@ export default {
 }
 
 .tip {
-  color: gray
+  color: gray;
+  font-size: 0.8em;
 }
 </style>

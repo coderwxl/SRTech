@@ -2,6 +2,7 @@ var express = require('express');
 var mysql = require('../utils/mysql-common')
 var validate = require('../utils/validate')
 var constant = require('../utils/constant')
+var socket = require('../utils/socket')
 
 var router = module.exports = express.Router();
 
@@ -153,3 +154,28 @@ router.get('/new', function(req, res, next) {
     return next(err);
   })
 })
+
+router.post('/sendmsg/:friendID(\\d+)', async function(req, res, next) {
+  try {
+    let chatid;
+    let rst1 = await mysql.query('select chat_id from user_chat where user_id = ? and friend_id = ?', [req.user.userid, req.params.friendID]);
+    if (rst1.length === 0) {
+      let rst2 = await mysql.query('select chat_id from user_chat where user_id = ? and friend_id = ?', [req.params.friendID, req.user.userid]);
+      if (rst2.length === 0) {
+        let rst3 = await mysql.query('insert into chat() values()');
+        chatid = rst3.insertId;
+        await mysql.query('insert into user_chat(user_id, chat_id, friend_id) values(?, ?, ?)', [req.user.userid, rst3.insertId, req.params.friendID]);
+      } else {
+        chatid = rst2[0].chat_id;
+      }
+    } else {
+      chatid = rst1[0].chat_id;
+    }
+    res.json({
+      code: constant.CODE_SUCCESS
+    })
+
+  } catch (err) {
+    return next(err);
+  }
+});

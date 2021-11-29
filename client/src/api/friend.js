@@ -47,3 +47,10 @@ export function changeFriendRemark(id, remark) {
     }
   })
 }
+
+export function sendMessage(id) {
+  return request({
+    url: '/friend/sendmsg/' + id,
+    method: 'post'
+  })
+}

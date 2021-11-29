@@ -1,7 +1,7 @@
 <template>
   <div class="main" :style="{ '--flexdir': isMe ? 'row-reverse' : 'row', '--databg' : isMe ? '#C9E7FF' : 'white', '--dataml': isMe ? '0' : '8px', '--datamr': isMe ? '8px' : '0' }">
     <img :src="message.avatar" alt="暂无头像" class="avatar">
-    <div class="data">{{ message.data }}</div>
+    <div class="data" v-html="message.data"></div>
   </div>
 </template>
 
@@ -14,9 +14,9 @@
     methods: {
     },
     computed: {
-        isMe() {
-            return this.$store.state.user.name === this.message.username
-        }
+      isMe() {
+        return this.$store.state.user.name === this.message.username
+      }
     }
 
   }

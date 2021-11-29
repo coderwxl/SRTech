@@ -47,9 +47,11 @@ exports.createIOSocket = function (server) {
     });
 }
 
-exports.sendMessage = async function (userid, msg) {
-    const sockets = await io.in(userid.toString()).fetchSockets();
-    for (let socket of sockets) {
-        socket.emit("newMessage", msg);
-    }
+exports.sendMessage = function (useridarr, eventname, msg) {
+    useridarr.forEach(async userid => {
+        const sockets = await io.in(userid.toString()).fetchSockets();
+        for (let socket of sockets) {
+            socket.emit(eventname, msg);
+        } 
+    });
 }

@@ -13,7 +13,7 @@
         </template>
         <template slot="paneR">
           <div class="bottom-container">
-            <div contenteditable="true" class="input-area" ref="inputarea"></div>
+            <div contenteditable="true" class="input-area" ref="inputarea" @keydown="textareaKeydown"></div>
             <div class="tip-button-row">
               <span class="tip">Enter 发送，Ctrl+Enter 换行</span>
               <el-button class="send-button" type="primary" size="medium" @click="onSubmit">发送</el-button>
@@ -80,9 +80,65 @@ export default {
       })
     },
     onSubmit() {  
+      if (!this.$refs.inputarea.innerHTML) {
+        return
+      }
       sendMessage(this.currentChatId, this.currentFriendId, this.$refs.inputarea.innerHTML).then(() => {
         this.$refs.inputarea.innerHTML = ''
       })
+    },
+    textareaKeydown(e) {
+      var e = e || window.event, ec = e.keyCode || e.which;
+      if(e.ctrlKey && ec === 13) {   //用户点击了ctrl+enter触发
+        if (this.browserType() == "IE" || this.browserType() == "Edge") {
+          this.$refs.inputarea.innerHTML += "<div></div>";
+        }
+        else if (this.browserType() == "FF") {
+          this.$refs.inputarea.innerHTML += "<br/><br/>";
+        } else {
+          this.$refs.inputarea.innerHTML += "<div><br/></div>";
+        }
+        //设置输入焦点
+        var last = this.$refs.inputarea.lastChild;
+        var sel = window.getSelection();
+        var range = document.createRange();
+        range.selectNodeContents(this.$refs.inputarea);
+        range.collapse(false);
+        range.setEndAfter(last);
+        range.setStartAfter(last);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      } else if (ec === 13) { //用户点击了enter触发
+        this.onSubmit();
+        e.preventDefault() // 阻止浏览器默认换行操作
+        return false
+      }  
+    },
+    browserType () {
+      var userAgent = navigator.userAgent; //取得浏览器的userAgent字符串
+      var isOpera = false;
+      if (userAgent.indexOf('Edge') > -1) {
+        return "Edge";
+      }
+      if (userAgent.indexOf('.NET') > -1) {
+        return "IE";
+      }
+      if (userAgent.indexOf("Opera") > -1 || userAgent.indexOf("OPR") > -1) {
+        isOpera = true;
+        return "Opera"
+      }; //判断是否Opera浏览器
+      if (userAgent.indexOf("Firefox") > -1) {
+        return "FF";
+      } //判断是否Firefox浏览器
+      if (userAgent.indexOf("Chrome") > -1) {
+        return "Chrome";
+      }
+      if (userAgent.indexOf("Safari") > -1) {
+        return "Safari";
+      } //判断是否Safari浏览器
+      if (userAgent.indexOf("compatible") > -1 && userAgent.indexOf("MSIE") > -1 && !isOpera) {
+        return "IE";
+      }; //判断是否IE浏览器
     }
   },
   sockets: {

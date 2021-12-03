@@ -13,7 +13,11 @@
         </template>
         <template slot="paneR">
           <div class="bottom-container">
-            <div contenteditable="true" class="input-area" ref="inputarea" @keydown="textareaKeydown"></div>
+            <div contenteditable="true" class="input-area" ref="inputarea" @keydown="textareaKeydown" 
+              @dragenter="onDrayEnterOrOver"
+              @dragover="onDrayEnterOrOver"
+              @drop="onDrop">
+            </div>
             <div class="tip-button-row">
               <span class="tip">Enter 发送，Ctrl+Enter 换行</span>
               <el-button class="send-button" type="primary" size="medium" @click="onSubmit">发送</el-button>
@@ -31,6 +35,7 @@ import ChatItem from './ChatItem.vue'
 import { getChatList, getChatDetail, sendMessage } from '@/api/chat'
 import PublicMixin from '@/utils/public-mixin'
 import MessageItem from './messageItem.vue'
+import imageCompression from 'browser-image-compression';
 
 export default {
   name: 'Chat',
@@ -46,7 +51,7 @@ export default {
     }
   },
   mixins: [ PublicMixin ],
-  created() {
+  mounted() {
     this.currentFriendId=this.$route.query.friendId;
     this.getChats()
   },
@@ -73,6 +78,7 @@ export default {
         }
       })
       getChatDetail(id).then(res => {
+        this.$refs.inputarea.focus()
         this.messageList = res.data
         this.$nextTick(function() {
           this.$refs.msgct.scrollTop = this.$refs.msgct.scrollHeight - this.$refs.msgct.clientHeight
@@ -139,6 +145,44 @@ export default {
       if (userAgent.indexOf("compatible") > -1 && userAgent.indexOf("MSIE") > -1 && !isOpera) {
         return "IE";
       }; //判断是否IE浏览器
+    },
+    onDrayEnterOrOver(e) {
+      e.stopPropagation(); 
+      e.preventDefault();
+    },
+    onDrop(e) {
+      e.stopPropagation(); 
+      e.preventDefault();
+      var dt = e.dataTransfer;
+      var files = dt.files;
+      const options = {
+        maxSizeMB: 0.1,
+        maxWidthOrHeight: 1000,
+        useWebWorker: true
+      }
+      for (var i = 0; i < files.length; i++) {
+        var file = files[i];
+        var imageType = /^image\//;
+        if (!imageType.test(file.type)) {
+          continue;
+        }
+        console.log(`originalFile size ${file.size / 1024} kb`);
+
+        imageCompression(file, options)
+          .then(function (compressedFile) {
+            var img = document.createElement("img");
+            img.style="max-width:200px"
+            img.file = compressedFile;
+            e.target.appendChild(img); 
+            console.log(`compressedFile size ${compressedFile.size / 1024} kb`); // smaller than maxSizeMB
+            var reader = new FileReader();
+            reader.onload = (function(aImg) { return function(e) { aImg.src = e.target.result; }; })(img);
+            reader.readAsDataURL(compressedFile);
+          })
+          .catch(function (error) {
+            console.log(error.message);
+          });
+      }
     }
   },
   sockets: {
@@ -163,6 +207,7 @@ export default {
       }
       if (this.currentChatId && val[this.currentChatId.toString()]) {
         getChatDetail(this.currentChatId).then(res => {
+          this.$refs.inputarea.focus()
           this.messageList = res.data
           this.$nextTick(function() {
             this.$refs.msgct.scrollTop = this.$refs.msgct.scrollHeight - this.$refs.msgct.clientHeight

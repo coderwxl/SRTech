@@ -96,8 +96,8 @@ CREATE TABLE IF NOT EXISTS `message`
     `id`        BIGINT UNSIGNED    NOT NULL AUTO_INCREMENT,
     `chat_id`   INT UNSIGNED    NOT NULL,
     `user_id`   INT UNSIGNED    NOT NULL,
-    `data`      TEXT            NOT NULL,
-    `time`      DATETIME(3)        NOT NULL DEFAULT NOW(3),
+    `data`      MEDIUMTEXT      NOT NULL,
+    `time`      DATETIME(3)     NOT NULL DEFAULT NOW(3),
     `is_undo`   TINYINT(1)      DEFAULT 0,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

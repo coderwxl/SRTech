@@ -112,6 +112,7 @@
   width: 100%;
   padding-left: 10px;
   background-color: var(--bgcolor);
+  overflow: hidden;
 
   &:hover {
     background-color: var(--bghovercolor);
@@ -145,6 +146,7 @@
       color: grey;
       margin-top: 5px;
       height: 1em;
+      max-width: 200px;
       overflow: hidden;
     }
   }

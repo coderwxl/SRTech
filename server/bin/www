@@ -41,10 +41,16 @@ var servers = https.createServer(credentials, app);
 server.listen(httpPort);
 server.on('error', onError);
 server.on('listening', onListening);
+server.on('connection', function(socket) {
+  socket.setTimeout(60 * 1000); // 60 second timeout. Change this as you see fit.
+})
 
 servers.listen(httpsPort);
 servers.on('error', onHttpsError);
 servers.on('listening', onHttpsListening);
+servers.on('connection', function(socket) {
+  socket.setTimeout(60 * 1000); // 60 second timeout. Change this as you see fit.
+})
 
 /**
  * Normalize a port into a number, string, or false.

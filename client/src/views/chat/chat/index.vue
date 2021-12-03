@@ -16,7 +16,8 @@
             <div contenteditable="true" class="input-area" ref="inputarea" @keydown="textareaKeydown" 
               @dragenter="onDrayEnterOrOver"
               @dragover="onDrayEnterOrOver"
-              @drop="onDrop">
+              @drop="onDrop"
+              @paste="onPaste">
             </div>
             <div class="tip-button-row">
               <span class="tip">Enter 发送，Ctrl+Enter 换行</span>
@@ -32,10 +33,14 @@
 <script>
 import splitPane from 'vue-splitpane'
 import ChatItem from './ChatItem.vue'
-import { getChatList, getChatDetail, sendMessage } from '@/api/chat'
+import { getChatList, getChatDetail, sendMessage, sendFile } from '@/api/chat'
 import PublicMixin from '@/utils/public-mixin'
 import MessageItem from './messageItem.vue'
 import imageCompression from 'browser-image-compression';
+import NProgress from 'nprogress' // progress bar
+import 'nprogress/nprogress.css' // progress bar style
+
+NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
 export default {
   name: 'Chat',
@@ -82,6 +87,7 @@ export default {
         this.messageList = res.data
         this.$nextTick(function() {
           this.$refs.msgct.scrollTop = this.$refs.msgct.scrollHeight - this.$refs.msgct.clientHeight
+          console.log("#######1: "+this.$refs.msgct.scrollTop)
         })
       })
     },
@@ -153,8 +159,15 @@ export default {
     onDrop(e) {
       e.stopPropagation(); 
       e.preventDefault();
-      var dt = e.dataTransfer;
-      var files = dt.files;
+      this.dealFiles(e, e.dataTransfer.files);
+    },
+    onUploadProgressFunc(e) {
+      NProgress.set(e.loaded/e.total)
+    },
+    onPaste(e) {
+      this.dealFiles(e, e.clipboardData.files);
+    },
+    dealFiles(e, files) {
       const options = {
         maxSizeMB: 0.1,
         maxWidthOrHeight: 1000,
@@ -162,19 +175,24 @@ export default {
       }
       for (var i = 0; i < files.length; i++) {
         var file = files[i];
+        // console.log(file)
         var imageType = /^image\//;
         if (!imageType.test(file.type)) {
+          var data = new FormData();
+          data.append("file", file);
+          data.append("chatID", this.currentChatId)
+          data.append("friendID", this.currentFriendId)
+          sendFile(data, this.onUploadProgressFunc).then(res => {
+            // console.log('upload over');
+          })
           continue;
         }
-        console.log(`originalFile size ${file.size / 1024} kb`);
-
         imageCompression(file, options)
-          .then(function (compressedFile) {
+          .then((compressedFile) => {
             var img = document.createElement("img");
             img.style="max-width:200px"
             img.file = compressedFile;
             e.target.appendChild(img); 
-            console.log(`compressedFile size ${compressedFile.size / 1024} kb`); // smaller than maxSizeMB
             var reader = new FileReader();
             reader.onload = (function(aImg) { return function(e) { aImg.src = e.target.result; }; })(img);
             reader.readAsDataURL(compressedFile);
@@ -211,6 +229,7 @@ export default {
           this.messageList = res.data
           this.$nextTick(function() {
             this.$refs.msgct.scrollTop = this.$refs.msgct.scrollHeight - this.$refs.msgct.clientHeight
+            console.log("#######2: "+this.$refs.msgct.scrollTop)
           })
         })
       }

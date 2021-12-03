@@ -1,8 +1,10 @@
 var express = require('express');
+var path = require('path');
 var mysql = require('../utils/mysql-common')
 var validate = require('../utils/validate')
 var constant = require('../utils/constant')
 var socket = require('../utils/socket')
+var upload = require('../utils/upload')
 
 var router = module.exports = express.Router();
 
@@ -57,5 +59,30 @@ router.post('/message', async function(req, res, next) {
     })
   } catch (err) {
     return next(err);
+  }
+})
+
+router.post('/sendfile', upload.any(), async function(req, res, next){
+  if (req.files.length === 0) {
+    res.status(400).send('no file')
+  } else {
+    // console.log(req.files)
+    let style = "text-decoration:underline; color:blue;"
+    let str = `<a href="${path.join('/', req.user.userid.toString(), req.files[0].filename)}" download="${req.files[0].originalname}" style="${style}">${req.files[0].originalname}</a>`
+    try {
+      await mysql.query('insert into message(chat_id, user_id, data) values(?, ?, ?)', [req.body.chatID, req.user.userid, str]);
+      let rst = await mysql.query('select count(*) as mycnt from user_chat where user_id = ? and chat_id = ?', [req.body.friendID, req.body.chatID]);
+      if (rst[0].mycnt === 0) {
+        await mysql.query('insert into user_chat(user_id, chat_id, friend_id) values(?, ?, ?)', [req.body.friendID, req.body.chatID, req.user.userid])
+      }
+      res.json({
+        code: constant.CODE_SUCCESS
+      })
+      socket.sendMessage([req.body.friendID, req.user.userid], "newMessage", {
+        [req.body.chatID.toString()]: str
+      });
+    } catch (err) {
+      return next(err);
+    }
   }
 })

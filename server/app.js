@@ -12,6 +12,7 @@ var constant = require('./utils/constant')
 var usersRouter = require('./routes/user');
 var friendRouter = require('./routes/friend');
 var chatRouter = require('./routes/chat');
+var publicfunc = require('./utils/publicfunc')
 
 var app = express();
 
@@ -24,16 +25,21 @@ app.use(compression()); //gzip压缩传输
 //   maxAge: 60
 // };
 // app.use(cors(corsConfig));
-
+app.use(logger('dev')); //, { immediate: true }
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: 86400000 })); //默认缓存一天
 app.use(express.static(path.join(__dirname, 'userdata'), { maxAge: 86400000 }));
 
-// token吊销暂时先放到前台做 isRevoked: usersRouter.removeToken 
-app.use(expressJwt({ secret: constant.SECRET, algorithms: ['HS256'] }).unless({path: ['/user/register', '/user/login'], ext: ['.html', '.htm', '.css', '.js', '.jpg', '.png', '.ico']}));
+app.use(expressJwt({ 
+  secret: constant.SECRET, 
+  algorithms: ['HS256'],
+  isRevoked: function(req, payload, done){
+    done(null, !publicfunc.checkToken(payload.jti));
+  }
+}).unless({path: ['/user/register', '/user/login'], ext: ['.html', '.htm', '.css', '.js', '.jpg', '.png', '.ico', '']}));
 
-app.use(logger('dev')); //, { immediate: true }
-app.use(express.json({limit: '100mb'}));
-app.use(express.urlencoded({ extended: false, limit: '100mb' }));
+
+app.use(express.json({limit: '10mb'}));
+app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 app.use(cookieParser());
 
 app.use('/user', usersRouter);

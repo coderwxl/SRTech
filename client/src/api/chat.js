@@ -25,3 +25,12 @@ export function sendMessage(chatId, friendId, msg) {
     }
   })
 }
+
+export function sendFile(filedata, pgsfunc) {
+  return request({
+    url: '/chat/sendfile',
+    method: 'post',
+    data: filedata,
+    onUploadProgress: pgsfunc
+  })
+}

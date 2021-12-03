@@ -5,20 +5,24 @@ var jwt = require('jsonwebtoken')
 var constant = require('../utils/constant')
 var upload = require('../utils/upload')
 var path = require('path');
+const { v4: uuidv4 } = require('uuid');
+var publicfunc = require('../utils/publicfunc')
 
 var router = express.Router();
 module.exports = router;
 
 router.post('/login', validate.checkLoginUsername, validate.checkLoginPassword, function(req, res, next) {
+  let jwtuuid = uuidv4();
   res.json({ 
     code: constant.CODE_SUCCESS,
     token: jwt.sign(
       { userid: res.locals.userid, username: res.locals.username, role: res.locals.role }, 
       constant.SECRET, 
-      { algorithm: 'HS256', expiresIn: constant.EXP }),
+      { algorithm: 'HS256', expiresIn: constant.EXP, jwtid: jwtuuid }),
     serverAddress: req.socket.localAddress,
     serverPort: req.socket.localPort
   })
+  publicfunc.addNewToken(jwtuuid)
 });
 
 router.post('/register', validate.checkRegisterUsername, function(req, res, next) {
@@ -72,6 +76,7 @@ router.post('/logout', function(req, res) {
   res.json({
     code: constant.CODE_SUCCESS
   })
+  publicfunc.removeToken(req.user.jti)
 })
 
 router.post('/avatar', upload.any(), function(req, res, next){

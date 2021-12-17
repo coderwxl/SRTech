@@ -143,7 +143,8 @@ export default {
     border-right: 1px solid #BDC8D6;
     height: 100%;
     width: 300px;
-
+    overflow: auto;
+    
     .left-top {
       padding-top: 5px;
       padding-left: 5px;

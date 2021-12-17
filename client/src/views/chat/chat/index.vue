@@ -299,6 +299,7 @@ export default {
   border-right: 1px solid #BDC8D6;
   height: 100%;
   width: 300px;
+  overflow: auto;
 }
 
 .right-container {

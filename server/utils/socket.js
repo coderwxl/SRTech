@@ -38,9 +38,11 @@ exports.createIOSocket = function (server) {
         // } else {
         //     userSockets[userid] = [ socket.id ]
         // }
-        // socket.on('clientEvent', (msg) => {
-        //     console.log('message: ' + msg);
-        // });
+        socket.on('videoChatEvent', (data) => {
+            console.log('videoChatEvent: ' + data);
+            var msg = JSON.parse(data);
+            sendMessage([msg.target], 'videoChatEvent', data)
+        });
         socket.on('disconnect', () => {
             // userSockets[userid] = null;
         });

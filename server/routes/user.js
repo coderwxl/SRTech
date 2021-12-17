@@ -18,9 +18,7 @@ router.post('/login', validate.checkLoginUsername, validate.checkLoginPassword, 
     token: jwt.sign(
       { userid: res.locals.userid, username: res.locals.username, role: res.locals.role }, 
       constant.SECRET, 
-      { algorithm: 'HS256', expiresIn: constant.EXP, jwtid: jwtuuid }),
-    serverAddress: req.socket.localAddress,
-    serverPort: req.socket.localPort
+      { algorithm: 'HS256', expiresIn: constant.EXP, jwtid: jwtuuid })
   })
   publicfunc.addNewToken(jwtuuid)
 });
@@ -37,10 +35,11 @@ router.post('/register', validate.checkRegisterUsername, function(req, res, next
 });
 
 router.get('/info', function(req, res, next) {
-  mysql.query('select username, role, avatar, signature, birth_date, job, address, phone, email from user where id = ?', [req.user.userid]).then((results) => {
+  mysql.query('select id, username, role, avatar, signature, birth_date, job, address, phone, email from user where id = ?', [req.user.userid]).then((results) => {
     res.json({
       code: constant.CODE_SUCCESS,
       data: {
+        id: results[0].id,
         username: results[0].username,
         role: results[0].role,
         avatar: results[0].avatar,

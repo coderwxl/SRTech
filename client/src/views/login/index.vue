@@ -80,7 +80,6 @@ export default {
           this.$store.dispatch('user/login', Object.assign({}, this.loginForm, { password: md5(this.loginForm.password) })).then(() => {
             this.$router.push({ path: this.redirect || '/' })
             this.loading = false
-            window.location.reload()
           }, () => {
             this.loading = false
           }).catch(() => {

@@ -115,3 +115,21 @@ export function param2Obj(url) {
   })
   return obj
 }
+
+export function log(text) {
+  var time = new Date();
+
+  console.log("[" + time.toLocaleTimeString() + "] " + text);
+}
+
+// Output an error message to console.
+
+export function log_error(text) {
+  var time = new Date();
+
+  console.trace("[" + time.toLocaleTimeString() + "] " + text);
+}
+
+export function reportError(errMessage) {
+  log_error(`Error ${errMessage.name}: ${errMessage.message}`);
+}

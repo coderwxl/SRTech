@@ -23,7 +23,7 @@ import Contextmenu from "vue-contextmenujs"
 import VueSocketIOExt from 'vue-socket.io-extended';
 import { io } from 'socket.io-client';
 
-import { getToken, getServerAddress } from '@/utils/auth'
+import { getToken } from '@/utils/auth'
 
 Vue.use(Contextmenu);
 
@@ -34,7 +34,8 @@ Vue.use(Contextmenu);
 
 // }, 5000);
 
-let serverAddress = getServerAddress();
+let serverAddress = window.location.origin;
+console.log(serverAddress)
 if (serverAddress) {
   const socket = io(serverAddress, {
     auth: {

@@ -20,13 +20,37 @@
               @paste="onPaste">
             </div>
             <div class="tip-button-row">
-              <span class="tip">Enter 发送，Ctrl+Enter 换行</span>
-              <el-button class="send-button" type="primary" size="medium" @click="onSubmit">发送</el-button>
+              <div class="video-div">
+                <el-tooltip content="语音聊天" placement="top">
+                  <el-button type="text" class="fa fa-phone fa-lg" @click="onVoiceChat"></el-button>
+                </el-tooltip>
+                <el-tooltip content="视频聊天" placement="top">
+                  <el-button type="text" class="fa fa-video-camera fa-lg" @click="onVideoChat"></el-button>
+                </el-tooltip>
+              </div>
+              <div>
+                <span class="tip">Enter 发送，Ctrl+Enter 换行</span>
+                <el-button class="send-button" type="primary" size="medium" @click="onSubmit">发送</el-button>
+              </div>
             </div>
           </div>
         </template>
       </split-pane>
     </div>
+
+    <el-dialog
+      title="视频聊天"
+      width="720px"
+      :visible.sync="videoDialogVisible"
+      :before-close="onVideoDialogBeforeClose">
+      <div class="video-dialog">
+        <video id="received_video" autoplay></video>
+        <div class="video-dialog-right">
+          <video id="local_video" autoplay muted></video>
+          <el-button id="hangup-button" type="danger" class="hang-up-btn" size="medium" @click="videoHangUpCall" disabled>挂断</el-button>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -39,6 +63,8 @@ import MessageItem from './messageItem.vue'
 import imageCompression from 'browser-image-compression';
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
+import adapter from 'webrtc-adapter'
+import VideoChat from './videochat'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
@@ -52,10 +78,12 @@ export default {
       messageList: [],
       inputdata: '',
       currentChatId: null,
-      currentFriendId: null
+      currentFriendId: null,
+      videoDialogVisible: false,
+      voiceDialogVisible: false
     }
   },
-  mixins: [ PublicMixin ],
+  mixins: [ PublicMixin, VideoChat ],
   mounted() {
     this.currentFriendId=this.$route.query.friendId;
     this.getChats()
@@ -87,7 +115,6 @@ export default {
         this.messageList = res.data
         this.$nextTick(function() {
           this.$refs.msgct.scrollTop = this.$refs.msgct.scrollHeight - this.$refs.msgct.clientHeight
-          console.log("#######1: "+this.$refs.msgct.scrollTop)
         })
       })
     },
@@ -201,6 +228,27 @@ export default {
             console.log(error.message);
           });
       }
+    },
+    onVoiceChat() {
+      
+    },
+    onVideoChat() {
+      this.videoDialogVisible = true
+      this.invite().catch(() => {
+        this.videoDialogVisible = false
+      })
+    },
+    onVideoDialogBeforeClose(done) {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          done();
+          this.hangUpCall()
+        })
+        .catch(_ => {});
+    },
+    videoHangUpCall() {
+      this.videoDialogVisible = false
+      this.hangUpCall()
     }
   },
   sockets: {
@@ -229,7 +277,6 @@ export default {
           this.messageList = res.data
           this.$nextTick(function() {
             this.$refs.msgct.scrollTop = this.$refs.msgct.scrollHeight - this.$refs.msgct.clientHeight
-            console.log("#######2: "+this.$refs.msgct.scrollTop)
           })
         })
       }
@@ -273,9 +320,13 @@ export default {
 
 .tip-button-row {       
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   height: 50px;
+
+  .video-div {
+    margin-left: 15px;
+  }
 }
 
 .input-area {
@@ -292,5 +343,32 @@ export default {
 .tip {
   color: gray;
   font-size: 0.8em;
+}
+
+.video-dialog {
+  display: flex;
+  justify-content: center;
+  .video-dialog-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    .hang-up-btn {
+      width: 80px;
+      height: 40px;
+    }
+  }
+}
+
+#received_video {
+  width: 500px;
+  height: 400px;
+  border: 1px solid gray;
+}
+
+#local_video {
+  width: 150px;
+  height: 150px;
+  border: 1px solid gray;
 }
 </style>

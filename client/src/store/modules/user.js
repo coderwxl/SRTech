@@ -1,5 +1,5 @@
 import { login, logout, getInfo } from '@/api/user'
-import { getToken, setToken, removeToken, removeServerAddress, setServerAddress, getServerAddress } from '@/utils/auth'
+import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 
 const getDefaultState = () => {
@@ -7,7 +7,8 @@ const getDefaultState = () => {
     token: getToken(),
     name: '',
     avatar: '',
-    role: ''
+    role: '',
+    id: ''
   }
 }
 
@@ -19,6 +20,9 @@ const mutations = {
   },
   SET_TOKEN: (state, token) => {
     state.token = token
+  },
+  SET_ID: (state, id) => {
+    state.id = id
   },
   SET_NAME: (state, name) => {
     state.name = name
@@ -39,7 +43,6 @@ const actions = {
       login({ username: username.trim(), password: password }).then(response => {
         commit('SET_TOKEN', response.token)
         setToken(response.token)
-        setServerAddress((response.serverPort === 443 ? "https://" : "http://") + response.serverAddress.slice(response.serverAddress.lastIndexOf(":")+1) + ":" + response.serverPort)
         resolve()
       }).catch(error => {
         reject(error)
@@ -57,11 +60,12 @@ const actions = {
           reject('Verification failed, please Login again.')
         }
 
-        const { role, username, avatar } = data
+        const { role, username, avatar, id } = data
 
         commit('SET_ROLE', role)
         commit('SET_NAME', username)
         commit('SET_AVATAR', avatar)
+        commit('SET_ID', id)
         resolve(data)
       }).catch(error => {
         reject(error)
@@ -74,7 +78,6 @@ const actions = {
     return new Promise((resolve, reject) => {
       logout().then(() => {
         removeToken() // must remove  token  first
-        removeServerAddress()
         resetRouter()
         commit('RESET_STATE')
         resolve()

@@ -26,8 +26,8 @@ app.use(compression()); //gzip压缩传输
 // };
 // app.use(cors(corsConfig));
 app.use(logger('dev')); //, { immediate: true }
-app.use(express.static(path.join(__dirname, 'public'), { maxAge: 86400000 })); //默认缓存一天
-app.use(express.static(path.join(__dirname, 'userdata'), { maxAge: 86400000 }));
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: 60000 })); //默认缓存一分钟
+app.use(express.static(path.join(__dirname, 'userdata'), { maxAge: 60000 }));
 
 app.use(expressJwt({ 
   secret: constant.SECRET, 

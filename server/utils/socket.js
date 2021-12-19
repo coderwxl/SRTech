@@ -29,7 +29,7 @@ exports.createIOSocket = function (server) {
     })))
     
     io.on("connection", (socket) => {
-        // console.log(socket.handshake.auth.user)
+        console.log(socket.handshake.auth.user)
         // console.log('a user connected');
         // socket.emit('serverEvent', 'my name is wangxiaolong');
         socket.join(socket.handshake.auth.user.userid.toString());
@@ -39,7 +39,7 @@ exports.createIOSocket = function (server) {
         //     userSockets[userid] = [ socket.id ]
         // }
         socket.on('videoChatEvent', (data) => {
-            console.log('videoChatEvent: ' + data);
+            // console.log('videoChatEvent: ' + socket.handshake.auth.user.userid);
             var msg = JSON.parse(data);
             sendMessage([msg.target], 'videoChatEvent', data)
         });
@@ -49,7 +49,7 @@ exports.createIOSocket = function (server) {
     });
 }
 
-exports.sendMessage = function (useridarr, eventname, msg) {
+function sendMessage (useridarr, eventname, msg) {
     useridarr.forEach(async userid => {
         const sockets = await io.in(userid.toString()).fetchSockets();
         for (let socket of sockets) {
@@ -57,3 +57,5 @@ exports.sendMessage = function (useridarr, eventname, msg) {
         } 
     });
 }
+
+exports.sendMessage = sendMessage

@@ -39,8 +39,8 @@ module.exports = {
     // before: require('./mock/mock-server.js'),
     proxy: {
       '.*': {
-        target: 'http://192.168.18.188:80', //todo
-        // target: 'http://192.168.31.159:80',
+        // target: 'http://192.168.18.188:80', //todo
+        target: 'https://192.168.31.159:443',
         ws: true
       }
     }

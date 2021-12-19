@@ -58,8 +58,11 @@ router.post('/new/add',  validate.checkAddFriendName, function(req, res, next) {
 
       try {
         await mysql.connectionQuery(connection, 'insert into friend(user_id, friend_id) values(?, ?)', [req.user.userid, res.locals.friendID]);
-        await mysql.connectionQuery(connection, 'insert into friend(user_id, friend_id) values(?, ?)', [res.locals.friendID, req.user.userid]);
-
+        rsts = await mysql.query('select * from friend where user_id=? and friend_id=?', [res.locals.friendID, req.user.userid]);
+        if (rsts.length === 0) {
+          await mysql.connectionQuery(connection, 'insert into friend(user_id, friend_id) values(?, ?)', [res.locals.friendID, req.user.userid]);
+        }
+        
         await mysql.connectionCommit(connection);
         connection.release();
 
@@ -158,16 +161,17 @@ router.get('/new', function(req, res, next) {
 router.post('/sendmsg/:friendID(\\d+)', async function(req, res, next) {
   try {
     let chatid;
+    console.log('sendmst to' + req.params.friendID)
     let rst1 = await mysql.query('select chat_id from user_chat where user_id = ? and friend_id = ?', [req.user.userid, req.params.friendID]);
     if (rst1.length === 0) {
       let rst2 = await mysql.query('select chat_id from user_chat where user_id = ? and friend_id = ?', [req.params.friendID, req.user.userid]);
       if (rst2.length === 0) {
         let rst3 = await mysql.query('insert into chat() values()');
         chatid = rst3.insertId;
-        await mysql.query('insert into user_chat(user_id, chat_id, friend_id) values(?, ?, ?)', [req.user.userid, rst3.insertId, req.params.friendID]);
       } else {
         chatid = rst2[0].chat_id;
       }
+      await mysql.query('insert into user_chat(user_id, chat_id, friend_id) values(?, ?, ?)', [req.user.userid, chatid, req.params.friendID]);
     } else {
       chatid = rst1[0].chat_id;
     }

@@ -24,20 +24,6 @@ export default {
       log("Sending '" + msg.type + "' message: " + msgJSON);
       this.$socket.client.emit('videoChatEvent', msgJSON);
     },
-    handleVideoOfferMsg(msg) {
-      this.$confirm(`${msg.name}请求进行视频聊天，是否同意？`, '提示', {
-        confirmButtonText: '是',
-        cancelButtonText: '否',
-        type: 'info'
-      }).then(() => {
-        this.currentFriendId = msg.id
-        this.getChats()
-        this.videoDialogVisible = true
-        handleVideoOfferMsgDetail(msg).catch(err => {
-          this.videoDialogVisible = false
-        })
-      })
-    },
     async handleVideoAnswerMsg(msg) {
       log("*** Call recipient has accepted our call");
 
@@ -62,7 +48,7 @@ export default {
 
       this.closeVideoCall();
     },
-    async handleVideoOfferMsgDetail(msg) {
+    async handleVideoOfferMsg(msg) {
       // If we're not already connected, create an RTCPeerConnection
       // to be linked to the caller.
     
@@ -97,7 +83,7 @@ export default {
     
       if (!this.webcamStream) {
         try {
-          this.webcamStream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+          this.webcamStream = await navigator.mediaDevices.getUserMedia(this.mediaConstraints);
         } catch(err) {
           this.handleGetUserMediaError(err);
           return Promise.reject(err);
@@ -109,7 +95,7 @@ export default {
     
         try {
           this.webcamStream.getTracks().forEach(
-            transceiver = track => this.myPeerConnection.addTransceiver(track, {streams: [this.webcamStream]})
+            this.transceiver = track => this.myPeerConnection.addTransceiver(track, {streams: [this.webcamStream]})
           );
         } catch(err) {
           this.handleGetUserMediaError(err);
@@ -229,7 +215,8 @@ export default {
     handleTrackEvent(event) {
       log("*** Track event");
       document.getElementById("received_video").srcObject = event.streams[0];
-      document.getElementById("hangup-button").disabled = false;
+      this.$refs.hangupbutton.disabled = false;
+      console.log("Track: " + this.$refs.hangupbutton.disabled)
     },
     closeVideoCall() {
       var localVideo = document.getElementById("local_video");
@@ -277,7 +264,7 @@ export default {
     
       // Disable the hangup button
     
-      document.getElementById("hangup-button").disabled = true;
+      this.$refs.hangupbutton.disabled = true;
 
       this.videoDialogVisible = false;
     },
@@ -337,7 +324,7 @@ export default {
         // "preview" box (id "local_video").
     
         try {
-          this.webcamStream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+          this.webcamStream = await navigator.mediaDevices.getUserMedia(this.mediaConstraints);
           document.getElementById("local_video").srcObject = this.webcamStream;
         } catch(err) {
           this.handleGetUserMediaError(err);
@@ -348,7 +335,7 @@ export default {
     
         try {
           this.webcamStream.getTracks().forEach(
-            transceiver = track => this.myPeerConnection.addTransceiver(track, {streams: [this.webcamStream]})
+            this.transceiver = track => this.myPeerConnection.addTransceiver(track, {streams: [this.webcamStream]})
           );
         } catch(err) {
           this.handleGetUserMediaError(err);
@@ -358,13 +345,12 @@ export default {
       }
     },
     hangUpCall() {
-      this.closeVideoCall();
-    
       this.sendToServer({
-        name: myUsername,
+        // name: myUsername,
         target: this.currentFriendId,
         type: "hang-up"
       });
+      this.closeVideoCall();
     } 
   },
   sockets: {
@@ -376,7 +362,11 @@ export default {
       var timeStr = time.toLocaleTimeString();
       switch(msg.type) {
         case "video-offer":  // Invitation and offer to chat
-          this.handleVideoOfferMsg(msg);
+          this.handleVideoOfferMsg(msg).catch(err => {
+            this.$message.error(err);
+            log_error(err);
+            this.videoDialogVisible = false
+          });
           break;
 
         case "video-answer":  // Callee has answered our offer
@@ -388,9 +378,52 @@ export default {
           break;
 
         case "hang-up": // The other peer has hung up the call
-          this.handleHangUpMsg(msg);
+          log("receive hang-up msg")
+          this.$alert('对方已关闭视频聊天！', '提示', {
+            confirmButtonText: '确定',
+            callback: action => {
+              this.videoDialogVisible = false;
+              this.handleHangUpMsg(msg);
+            }
+          });
+          break;
+        
+        case "request-video-chat":
+          this.$confirm(`${msg.name}请求进行视频聊天，是否同意？`, '提示', {
+            confirmButtonText: '是',
+            cancelButtonText: '否',
+            type: 'info'
+          }).then(() => {
+            this.sendToServer({
+              target: msg.id,
+              type: "agree-video-chat"
+            });
+            this.currentFriendId = msg.id
+            this.getChats()
+            this.videoDialogVisible = true
+          }).catch(() => {
+            this.sendToServer({
+              target: msg.id,
+              type: "reject-video-chat"
+            });
+          })
           break;
 
+        case "agree-video-chat":
+          this.videoDialogVisible = true;
+          this.invite().catch(err => {
+            this.$message.error(err);
+            log_error(err);
+            this.videoDialogVisible = false
+          })
+          break;
+
+        case "reject-video-chat":
+          this.$alert('对方已拒绝！', '提示', {
+            confirmButtonText: '确定'
+          });
+          break;
+        
         // Unknown message; output to console for debugging.
         default:
           log_error("Unknown message received:");

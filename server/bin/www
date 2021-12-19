@@ -26,7 +26,7 @@ app.set('port', httpPort);
 
 var server = http.createServer(app);
 
-socket.createIOSocket(server);
+// socket.createIOSocket(server);
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -37,6 +37,7 @@ socket.createIOSocket(server);
   cert: fs.readFileSync(path.join(__dirname, '../cert/server.cert'))
 };
 var servers = https.createServer(credentials, app);
+socket.createIOSocket(servers);
 
 server.listen(httpPort);
 server.on('error', onError);

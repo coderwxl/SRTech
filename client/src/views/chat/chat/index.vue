@@ -41,13 +41,14 @@
     <el-dialog
       title="视频聊天"
       width="720px"
+      class="video-dialog"
       :visible.sync="videoDialogVisible"
       :before-close="onVideoDialogBeforeClose">
-      <div class="video-dialog">
+      <div class="video-dialog-main">
         <video id="received_video" autoplay></video>
         <div class="video-dialog-right">
           <video id="local_video" autoplay muted></video>
-          <el-button id="hangup-button" type="danger" class="hang-up-btn" size="medium" @click="videoHangUpCall" disabled>挂断</el-button>
+          <el-button ref="hangupbutton" type="danger" class="hang-up-btn" size="medium" @click="videoHangUpCall" :disabled="false">挂断</el-button>
         </div>
       </div>
     </el-dialog>
@@ -233,10 +234,12 @@ export default {
       
     },
     onVideoChat() {
-      this.videoDialogVisible = true
-      this.invite().catch(() => {
-        this.videoDialogVisible = false
-      })
+      this.sendToServer({
+        name: this.$store.state.user.name,
+        id: this.$store.state.user.id,
+        target: this.currentFriendId,
+        type: "request-video-chat"
+      });
     },
     onVideoDialogBeforeClose(done) {
       this.$confirm('确认关闭？')
@@ -346,7 +349,7 @@ export default {
   font-size: 0.8em;
 }
 
-.video-dialog {
+.video-dialog-main {
   display: flex;
   justify-content: center;
   .video-dialog-right {
@@ -364,12 +367,16 @@ export default {
 #received_video {
   width: 500px;
   height: 400px;
-  border: 1px solid gray;
+  //border: 1px solid gray;
 }
 
 #local_video {
   width: 150px;
   height: 150px;
-  border: 1px solid gray;
+  //border: 1px solid gray;
+}
+
+.video-dialog ::v-deep .el-dialog__body {
+  padding: 0 20px 20px 20px;
 }
 </style>

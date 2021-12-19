@@ -34,7 +34,8 @@ Vue.use(Contextmenu);
 
 // }, 5000);
 
-let serverAddress = window.location.origin;
+// let serverAddress = window.location.origin;
+let serverAddress = "https://192.168.31.159:443"
 console.log(serverAddress)
 if (serverAddress) {
   const socket = io(serverAddress, {
@@ -82,6 +83,7 @@ new Vue({
     },
     connect_error() {
       setTimeout(() => {
+        console.log(getToken())
         if (getToken()) {
           this.$socket.client.auth.token = getToken()
         }

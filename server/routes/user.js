@@ -74,7 +74,7 @@ router.post('/info', validate.checkEditInfoUsername, async function(req, res, ne
 router.post('/logout', function(req, res) {
   res.json({
     code: constant.CODE_SUCCESS
-  })
+  })    
   publicfunc.removeToken(req.user.jti)
 })
 

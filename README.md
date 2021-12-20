@@ -1,6 +1,6 @@
 # SRTech
-前台：vue（vuex、elementui、axios、socketio、webrtc）
-后台：nodejs（express、mysql、jwt、socketio）
+前台：vue（vuex、elementui、axios、socketio、webrtc）  
+后台：nodejs（express、mysql、jwt、socketio）  
 
 目前实现：
 1. 登录、登出、个人信息修改
